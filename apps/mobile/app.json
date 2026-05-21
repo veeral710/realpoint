@@ -34,7 +34,9 @@
       "permissions": [
         "RECEIVE_BOOT_COMPLETED",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "plugins": [
@@ -60,10 +62,11 @@
       "typedRoutes": true
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "your-eas-project-id"
-      },
-      "router": {}
-    }
+        "projectId": "c0753742-550a-425e-af85-d8d60d82f7a3"
+      }
+    },
+    "owner": "veeral1"
   }
 }

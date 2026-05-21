@@ -16,7 +16,6 @@ import {
 } from "@realpoint/shared";
 import { SuratMap } from "@/components/SuratMap";
 import { useMapLayers } from "@/hooks/useMapLayers";
-import { isExpoGo } from "@/lib/map-engine";
 import { colors } from "@/constants/theme";
 
 export default function MapTabScreen() {
@@ -26,7 +25,7 @@ export default function MapTabScreen() {
   const { schemes, dpOverlays, fpOverlays, villages, listings, loading, error } =
     useMapLayers(listingIntent);
 
-  const [satellite, setSatellite] = useState(true);
+  const [satellite, setSatellite] = useState(false);
   const [showTp, setShowTp] = useState(true);
   const [showDp, setShowDp] = useState(false);
   const [showFp, setShowFp] = useState(false);
@@ -80,17 +79,8 @@ export default function MapTabScreen() {
     return null;
   }, [selectedListing, selectedScheme]);
 
-  const expoGo = isExpoGo();
-
   return (
     <View style={styles.container}>
-      {expoGo ? (
-        <View style={styles.banner}>
-          <Text style={styles.bannerText}>
-            Expo Go uses the basic map. Run a dev build for MapLibre (see START.md).
-          </Text>
-        </View>
-      ) : null}
       <SuratMap
         schemes={schemes}
         dpOverlays={dpOverlays}
@@ -299,14 +289,6 @@ export default function MapTabScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  banner: {
-    backgroundColor: "#fff8e1",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
-  bannerText: { fontSize: 12, color: "#7a5c00" },
   panel: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: 16,

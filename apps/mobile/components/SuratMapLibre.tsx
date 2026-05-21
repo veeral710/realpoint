@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import {
   Map,
   Camera,
@@ -88,6 +88,8 @@ export function SuratMapLibre({
   onListingPress,
 }: SuratMapProps) {
   const cameraRef = useRef<CameraRef>(null);
+  const [styleFailed, setStyleFailed] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   const tpGeo = useMemo(
     () =>
@@ -124,8 +126,10 @@ export function SuratMapLibre({
     [listings, showListings]
   );
 
-  const mapStyle =
-    mapType === "hybrid" || mapType === "satellite"
+  const wantSatellite = mapType === "hybrid" || mapType === "satellite";
+  const mapStyle = styleFailed
+    ? MAP_STYLE_STREETS
+    : wantSatellite
       ? MAP_STYLE_SATELLITE
       : MAP_STYLE_STREETS;
 
@@ -144,7 +148,27 @@ export function SuratMapLibre({
 
   return (
     <View style={styles.wrap}>
-      <Map style={styles.map} mapStyle={mapStyle}>
+      {!mapReady && (
+        <View style={styles.loading}>
+          <Text style={styles.loadingText}>Loading map…</Text>
+        </View>
+      )}
+      {styleFailed && wantSatellite && (
+        <View style={styles.hint}>
+          <Text style={styles.hintText}>
+            Satellite tiles unavailable — showing street map.
+          </Text>
+        </View>
+      )}
+      <Map
+        style={styles.map}
+        mapStyle={mapStyle}
+        onDidFinishLoadingMap={() => setMapReady(true)}
+        onDidFailLoadingMap={() => {
+          setStyleFailed(true);
+          setMapReady(true);
+        }}
+      >
         <Camera
           ref={cameraRef}
           initialViewState={{
@@ -217,8 +241,27 @@ export function SuratMapLibre({
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
-  map: { flex: 1 },
+  wrap: { flex: 1, overflow: "hidden" },
+  map: { ...StyleSheet.absoluteFillObject },
+  loading: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#e8ece9",
+    zIndex: 1,
+  },
+  loadingText: { color: "#5c6b62" },
+  hint: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    right: 8,
+    zIndex: 2,
+    backgroundColor: "rgba(255,248,225,0.95)",
+    padding: 8,
+    borderRadius: 8,
+  },
+  hintText: { fontSize: 11, color: "#7a5c00" },
   tpDot: {
     width: 12,
     height: 12,

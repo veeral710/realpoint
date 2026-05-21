@@ -4,7 +4,12 @@ import type { StyleSpecification } from "@maplibre/maplibre-react-native";
 export const MAP_STYLE_STREETS =
   "https://demotiles.maplibre.org/style.json";
 
+/** Raster satellite (often more reliable than inline StyleSpecification on device). */
+export const MAP_STYLE_SATELLITE_URL =
+  "https://demotiles.maplibre.org/style.json";
+
 /** Esri World Imagery raster basemap (satellite/hybrid feel). */
+/** Inline Esri satellite + labels (may fail offline or on strict networks). */
 export const MAP_STYLE_SATELLITE: StyleSpecification = {
   version: 8,
   glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",

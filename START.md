@@ -65,6 +65,12 @@ pnpm dev:mobile:client
 
 See [docs/MAPLIBRE.md](docs/MAPLIBRE.md).
 
+**First time and nothing loads?** Follow [docs/FIRST-DEV-BUILD.md](docs/FIRST-DEV-BUILD.md) and run:
+
+```bash
+bash scripts/dev-mobile-url.sh
+```
+
 ### Expo Go (quick test, basic map only)
 
 ```bash
