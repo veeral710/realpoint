@@ -18,6 +18,7 @@ import {
   villagesToPolygons,
   polygonsToFeatureCollection,
   listingsToFeatureCollection,
+  noticesToFeatureCollection,
 } from "@/lib/maps";
 import type { SuratMapProps } from "./SuratMapLegacy";
 
@@ -73,11 +74,13 @@ export function SuratMapLibre({
   fpOverlays = [],
   villages = [],
   listings = [],
+  notices = [],
   showTpOverlay,
   showDpOverlay = false,
   showFpOverlay = false,
   showVillageOverlay = false,
   showListings = false,
+  showNotices = false,
   showTpMarkers = true,
   tpOpacity,
   overlayOpacity = 0.35,
@@ -86,6 +89,7 @@ export function SuratMapLibre({
   focusCenter,
   onSchemePress,
   onListingPress,
+  onNoticePress,
 }: SuratMapProps) {
   const cameraRef = useRef<CameraRef>(null);
   const [styleFailed, setStyleFailed] = useState(false);
@@ -124,6 +128,10 @@ export function SuratMapLibre({
   const listingsGeo = useMemo(
     () => (showListings ? listingsToFeatureCollection(listings) : { type: "FeatureCollection" as const, features: [] }),
     [listings, showListings]
+  );
+  const noticesGeo = useMemo(
+    () => (showNotices ? noticesToFeatureCollection(notices) : { type: "FeatureCollection" as const, features: [] }),
+    [notices, showNotices]
   );
 
   const wantSatellite = mapType === "hybrid" || mapType === "satellite";
@@ -198,6 +206,48 @@ export function SuratMapLibre({
           data={villageGeo}
           onSchemePress={onSchemePress}
         />
+        {showNotices && noticesGeo.features.length > 0 && (
+          <GeoJSONSource
+            id="notices"
+            data={noticesGeo}
+            onPress={(e) => {
+              const id = e.nativeEvent.features[0]?.properties?.id;
+              if (typeof id === "string") onNoticePress?.(id);
+            }}
+          >
+            <Layer
+              type="heatmap"
+              id="notices-heatmap"
+              paint={{
+                "heatmap-weight": 1,
+                "heatmap-intensity": 0.5,
+                "heatmap-radius": 28,
+                "heatmap-opacity": 0.65,
+                "heatmap-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["heatmap-density"],
+                  0,
+                  "rgba(0,0,0,0)",
+                  0.4,
+                  "rgba(27,107,74,0.4)",
+                  1,
+                  "rgba(21,101,192,0.7)",
+                ],
+              }}
+            />
+            <Layer
+              type="circle"
+              id="notices-dots"
+              paint={{
+                "circle-radius": 7,
+                "circle-color": ["get", "color"],
+                "circle-stroke-width": 1.5,
+                "circle-stroke-color": "#ffffff",
+              }}
+            />
+          </GeoJSONSource>
+        )}
         {showListings && listingsGeo.features.length > 0 && (
           <GeoJSONSource
             id="listings"

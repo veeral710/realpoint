@@ -46,6 +46,10 @@ export const newsItemSchema = z.object({
   category: newsCategorySchema,
   source_url: z.string().url().nullable(),
   pdf_url: z.string().url().nullable(),
+  locality_id: z.string().uuid().nullable().optional(),
+  tp_scheme_id: z.string().uuid().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
   published_at: z.string(),
   is_published: z.boolean(),
   created_at: z.string(),
@@ -61,6 +65,32 @@ export const createNewsItemSchema = z.object({
   pdf_url: z.string().url().optional().or(z.literal("")),
   published_at: z.string(),
   is_published: z.boolean().default(true),
+  locality_id: z.string().uuid().optional(),
+  tp_scheme_id: z.string().uuid().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+});
+
+export const mapNoticePinSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  category: newsCategorySchema,
+  published_at: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  tp_scheme_id: z.string().uuid().nullable().optional(),
+  locality_name: z.string().nullable().optional(),
+});
+
+export const schemeNoticeSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  summary: z.string(),
+  category: newsCategorySchema,
+  published_at: z.string(),
+  source_url: z.string().url().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
 });
 
 export const listingSchema = z.object({
@@ -227,6 +257,8 @@ export const createTpSchemeSchema = z.object({
 export type Profile = z.infer<typeof profileSchema>;
 export type Locality = z.infer<typeof localitySchema>;
 export type NewsItem = z.infer<typeof newsItemSchema>;
+export type MapNoticePin = z.infer<typeof mapNoticePinSchema>;
+export type SchemeNotice = z.infer<typeof schemeNoticeSchema>;
 export type Listing = z.infer<typeof listingSchema>;
 export type CreateListing = z.infer<typeof createListingSchema>;
 export type CreateNewsItem = z.infer<typeof createNewsItemSchema>;

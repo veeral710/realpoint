@@ -9,6 +9,19 @@ export const NEWS_CATEGORIES = [
   "general",
 ] as const;
 
+/** Map pin colors for notice categories */
+export const NEWS_CATEGORY_MAP_COLORS: Record<
+  (typeof NEWS_CATEGORIES)[number],
+  string
+> = {
+  suda: "#1b6b4a",
+  revenue: "#6d4c41",
+  rera: "#1565c0",
+  gst_registration: "#7b1fa2",
+  infrastructure: "#e65100",
+  general: "#5c6b62",
+};
+
 export const NEWS_CATEGORY_LABELS: Record<
   (typeof NEWS_CATEGORIES)[number],
   string

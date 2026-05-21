@@ -12,8 +12,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   TP_SCHEME_STATUS_LABELS,
   MAP_DISCLAIMER,
+  NEWS_CATEGORY_LABELS,
   type TpScheme,
   type MapOverlay,
+  type SchemeNotice,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
 import { colors } from "@/constants/theme";
@@ -23,6 +25,7 @@ export default function TpSchemeDetailScreen() {
   const router = useRouter();
   const [scheme, setScheme] = useState<TpScheme | null>(null);
   const [fpBlocks, setFpBlocks] = useState<MapOverlay[]>([]);
+  const [nearbyNotices, setNearbyNotices] = useState<SchemeNotice[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,9 +33,11 @@ export default function TpSchemeDetailScreen() {
     Promise.all([
       supabase.from("tp_schemes").select("*").eq("id", id).single(),
       supabase.rpc("get_fp_overlays_for_scheme", { p_scheme_id: id }),
-    ]).then(([schemeRes, fpRes]) => {
+      supabase.rpc("get_notices_for_scheme", { p_scheme_id: id }),
+    ]).then(([schemeRes, fpRes, noticeRes]) => {
       setScheme(schemeRes.data as TpScheme);
       setFpBlocks((fpRes.data as MapOverlay[]) ?? []);
+      setNearbyNotices((noticeRes.data as SchemeNotice[]) ?? []);
       setLoading(false);
     });
   }, [id]);
@@ -115,6 +120,42 @@ export default function TpSchemeDetailScreen() {
           No FP blocks linked yet for this scheme.
         </Text>
       )}
+      <View style={styles.noticeSection}>
+        <Text style={styles.noticeHeading}>Public notices near this scheme</Text>
+        <Text style={styles.noticeHint}>
+          Govt circulars and SUDA updates linked to this TP area or within ~8 km.
+        </Text>
+        {nearbyNotices.length === 0 ? (
+          <Text style={styles.meta}>No linked notices yet.</Text>
+        ) : (
+          nearbyNotices.map((notice) => (
+            <Pressable
+              key={notice.id}
+              style={styles.noticeCard}
+              onPress={() => router.push(`/news/${notice.id}`)}
+            >
+              <Text style={styles.noticeTitle}>{notice.title}</Text>
+              <Text style={styles.meta}>
+                {NEWS_CATEGORY_LABELS[
+                  notice.category as keyof typeof NEWS_CATEGORY_LABELS
+                ] ?? notice.category}{" "}
+                · {new Date(notice.published_at).toLocaleDateString("en-IN")}
+              </Text>
+            </Pressable>
+          ))
+        )}
+        <Pressable
+          style={styles.noticeMapBtn}
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/map",
+              params: { scheme: scheme.id, mode: "planning" },
+            })
+          }
+        >
+          <Text style={styles.noticeMapBtnText}>Show on planning map</Text>
+        </Pressable>
+      </View>
       {scheme.source_url ? (
         <Pressable
           style={styles.linkBtn}
@@ -177,4 +218,26 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   fpMapBtnText: { color: colors.primary, fontWeight: "600" },
+  noticeSection: { marginTop: 20 },
+  noticeHeading: { fontSize: 16, fontWeight: "700", color: colors.text },
+  noticeHint: { fontSize: 12, color: colors.muted, marginTop: 4, marginBottom: 10 },
+  noticeCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+    backgroundColor: colors.surface,
+  },
+  noticeTitle: { fontWeight: "600", color: colors.text },
+  noticeMapBtn: {
+    marginTop: 8,
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  noticeMapBtnText: { color: colors.primary, fontWeight: "600" },
 });

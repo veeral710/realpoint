@@ -6,6 +6,7 @@ import type {
   MapOverlay,
   VillageMap,
   MapListingPin,
+  MapNoticePin,
 } from "@realpoint/shared";
 import { SURAT_MAP_CENTER } from "@realpoint/shared";
 import {
@@ -13,6 +14,7 @@ import {
   overlaysToPolygons,
   villagesToPolygons,
   intentPinColor,
+  noticeCategoryColor,
   type LatLng,
   type MapPolygon,
 } from "@/lib/maps";
@@ -23,20 +25,24 @@ export type SuratMapProps = {
   fpOverlays?: MapOverlay[];
   villages?: VillageMap[];
   listings?: MapListingPin[];
+  notices?: MapNoticePin[];
   showTpOverlay: boolean;
   showDpOverlay?: boolean;
   showFpOverlay?: boolean;
   showVillageOverlay?: boolean;
   showListings?: boolean;
+  showNotices?: boolean;
   showTpMarkers?: boolean;
   tpOpacity: number;
   overlayOpacity?: number;
   mapType: "standard" | "satellite" | "hybrid";
   selectedSchemeId?: string | null;
   selectedListingId?: string | null;
+  selectedNoticeId?: string | null;
   focusCenter?: LatLng | null;
   onSchemePress?: (schemeId: string) => void;
   onListingPress?: (listingId: string) => void;
+  onNoticePress?: (noticeId: string) => void;
 };
 
 export function SuratMapLegacy({
@@ -45,11 +51,13 @@ export function SuratMapLegacy({
   fpOverlays = [],
   villages = [],
   listings = [],
+  notices = [],
   showTpOverlay,
   showDpOverlay = false,
   showFpOverlay = false,
   showVillageOverlay = false,
   showListings = false,
+  showNotices = false,
   showTpMarkers = true,
   tpOpacity,
   overlayOpacity = 0.35,
@@ -58,6 +66,7 @@ export function SuratMapLegacy({
   focusCenter,
   onSchemePress,
   onListingPress,
+  onNoticePress,
 }: SuratMapProps) {
   const mapRef = useRef<MapView>(null);
 
@@ -145,6 +154,20 @@ export function SuratMapLegacy({
               description={scheme.name}
               pinColor={selectedSchemeId === scheme.id ? "#1b6b4a" : "#5c6b62"}
               onPress={() => onSchemePress?.(scheme.id)}
+            />
+          ))}
+        {showNotices &&
+          notices.map((notice) => (
+            <Marker
+              key={`notice-${notice.id}`}
+              coordinate={{
+                latitude: notice.latitude,
+                longitude: notice.longitude,
+              }}
+              title={notice.title}
+              description={notice.locality_name ?? notice.category}
+              pinColor={noticeCategoryColor(notice.category)}
+              onPress={() => onNoticePress?.(notice.id)}
             />
           ))}
         {showListings &&

@@ -1,45 +1,42 @@
-# Public notices module (planned)
+# Public notices module
 
-Aligned with [Town Plan Map — Public Notice Intelligence](https://townplanmap.com/welcome).
+Geo-tagged **news_items** power trust features without a separate table.
 
-## Purpose
+## Data model
 
-Track SUDA / revenue / RERA **public notices** spatially — not as a map layer toggle mixed with TP/DP.
+`news_items` columns:
 
-## User flows
+- `locality_id`, `tp_scheme_id` — link to Surat areas / TP schemes
+- `latitude`, `longitude` — map pins and heatmap
 
-1. **News tab** (current) — curated circulars with source links (Phase 1).
-2. **Notices map module** (future) — heatmap of notice density by area.
-3. **Notices list** (future) — searchable by date, authority, linked locality/TP scheme.
+Seeded posts are backfilled from area keywords in title/summary; city-wide items use Surat center.
 
-## Data model (draft)
+## RPCs
 
-```sql
-public_notices (
-  id, title, summary, authority, category,
-  published_at, source_url, pdf_url,
-  locality_id, tp_scheme_id,
-  center_lat, center_lng,
-  is_published
-)
+| Function | Use |
+|----------|-----|
+| `get_map_notices()` | Planning map pins + heatmap (MapLibre) |
+| `get_notices_for_scheme(uuid)` | TP scheme detail list (~8 km + same locality) |
+
+## Mobile
+
+| Screen | Behavior |
+|--------|----------|
+| **Map → Planning** | Toggle “Public notices”; heatmap + dots (MapLibre) or pins (legacy map) |
+| **TP scheme detail** | “Public notices near this scheme” → News detail |
+| **News tab** | Unchanged feed; same items |
+
+## Admin
+
+**News** form: locality, TP scheme, lat/lng optional fields.
+
+## Local apply
+
+```bash
+supabase migration up   # includes 20250521000011_geo_news.sql
 ```
 
-## UI placement
+## Later (Path A / cloud)
 
-| Surface | Role |
-|---------|------|
-| News tab | Text-first circulars (keep) |
-| Map → separate entry | “Planning notices” heatmap (optional chip on Planning mode) |
-| TP scheme detail | Related notices for that scheme |
-
-## Build order
-
-1. Extend `news_items` with optional `latitude`, `longitude`, `tp_scheme_id` for geo notices.
-2. Map heatmap layer (MapLibre / legacy) driven by notice points.
-3. Filter list on News tab: “Map view” / “Near this scheme”.
-4. Push alerts (Expo notifications) for new notices in saved localities.
-
-## Out of scope for v1
-
-- Automated scraping of govt portals (manual CMS first).
-- Legal certification of notice text.
+- Push alerts for new notices in bookmarked localities
+- Dedicated `public_notices` table only if news_items becomes too noisy

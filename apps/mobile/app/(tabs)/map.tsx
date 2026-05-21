@@ -12,6 +12,7 @@ import {
   LISTING_INTENTS,
   MAP_DISCLAIMER,
   MAP_LAYER_LABELS,
+  NEWS_CATEGORY_LABELS,
   PROPERTY_CLASS_LABELS,
   type MapOverlay,
 } from "@realpoint/shared";
@@ -29,7 +30,7 @@ export default function MapTabScreen() {
     showFp?: string;
   }>();
   const [listingIntent, setListingIntent] = useState<string | null>(null);
-  const { schemes, dpOverlays, fpOverlays, villages, listings, loading, error } =
+  const { schemes, dpOverlays, fpOverlays, villages, listings, notices, loading, error } =
     useMapLayers(listingIntent);
   const [schemeFpOverlays, setSchemeFpOverlays] = useState<MapOverlay[]>([]);
 
@@ -41,6 +42,7 @@ export default function MapTabScreen() {
   const [showTp, setShowTp] = useState(true);
   const [showDp, setShowDp] = useState(false);
   const [showVillages, setShowVillages] = useState(false);
+  const [showNotices, setShowNotices] = useState(true);
   const [showFp, setShowFp] = useState(params.showFp === "1");
   const showListings = mapMode === "listings";
   const showPlanningLayers = mapMode === "planning";
@@ -54,6 +56,7 @@ export default function MapTabScreen() {
   const [selectedListingId, setSelectedListingId] = useState<string | null>(
     typeof params.listing === "string" ? params.listing : null
   );
+  const [selectedNoticeId, setSelectedNoticeId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof params.scheme === "string") setSelectedSchemeId(params.scheme);
@@ -101,7 +104,18 @@ export default function MapTabScreen() {
     [listings, selectedListingId]
   );
 
+  const selectedNotice = useMemo(
+    () => notices.find((n) => n.id === selectedNoticeId) ?? null,
+    [notices, selectedNoticeId]
+  );
+
   const focusCenter = useMemo(() => {
+    if (selectedNotice) {
+      return {
+        latitude: selectedNotice.latitude,
+        longitude: selectedNotice.longitude,
+      };
+    }
     if (selectedListing) {
       return {
         latitude: selectedListing.latitude,
@@ -115,7 +129,7 @@ export default function MapTabScreen() {
       };
     }
     return null;
-  }, [selectedListing, selectedScheme]);
+  }, [selectedNotice, selectedListing, selectedScheme]);
 
   return (
     <View style={styles.container}>
@@ -125,25 +139,35 @@ export default function MapTabScreen() {
         fpOverlays={fpForMap}
         villages={villages}
         listings={listings}
+        notices={notices}
         showTpOverlay={showPlanningLayers && showTp}
         showDpOverlay={showPlanningLayers && showDp}
         showFpOverlay={showPlanningLayers && showFp}
         showVillageOverlay={showPlanningLayers && showVillages}
         showListings={showListings}
+        showNotices={showPlanningLayers && showNotices}
         showTpMarkers={showPlanningLayers && !showTp}
         tpOpacity={tpOpacity}
         overlayOpacity={overlayOpacity}
         mapType={satellite ? "hybrid" : "standard"}
         selectedSchemeId={selectedSchemeId}
         selectedListingId={selectedListingId}
+        selectedNoticeId={selectedNoticeId}
         focusCenter={focusCenter}
         onSchemePress={(id) => {
           setSelectedSchemeId(id);
           setSelectedListingId(null);
+          setSelectedNoticeId(null);
         }}
         onListingPress={(id) => {
           setSelectedListingId(id);
           setSelectedSchemeId(null);
+          setSelectedNoticeId(null);
+        }}
+        onNoticePress={(id) => {
+          setSelectedNoticeId(id);
+          setSelectedSchemeId(null);
+          setSelectedListingId(null);
         }}
       />
       <View style={[styles.panel, !panelExpanded && styles.panelCollapsed]}>
@@ -230,6 +254,10 @@ export default function MapTabScreen() {
                     value={showVillages}
                     onValueChange={setShowVillages}
                   />
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>Public notices</Text>
+                  <Switch value={showNotices} onValueChange={setShowNotices} />
                 </View>
                 <Text style={styles.label}>TP opacity</Text>
                 <View style={styles.opacityRow}>
@@ -370,10 +398,26 @@ export default function MapTabScreen() {
                 </Text>
               </Pressable>
             ) : null}
-            {!selectedScheme && !selectedListing ? (
+            {selectedNotice ? (
+              <Pressable
+                style={styles.card}
+                onPress={() => router.push(`/news/${selectedNotice.id}`)}
+              >
+                <Text style={styles.cardTitle}>{selectedNotice.title}</Text>
+                <Text style={styles.muted}>
+                  {NEWS_CATEGORY_LABELS[
+                    selectedNotice.category as keyof typeof NEWS_CATEGORY_LABELS
+                  ] ?? selectedNotice.category}
+                  {selectedNotice.locality_name
+                    ? ` · ${selectedNotice.locality_name}`
+                    : ""}
+                </Text>
+              </Pressable>
+            ) : null}
+            {!selectedScheme && !selectedListing && !selectedNotice ? (
               <Text style={styles.muted}>
                 {mapMode === "planning"
-                  ? "Tap a TP zone or use TP directory."
+                  ? "Tap a TP zone, notice pin, or use TP directory."
                   : "Tap a property pin."}
               </Text>
             ) : null}

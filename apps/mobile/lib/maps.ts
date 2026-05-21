@@ -140,6 +140,45 @@ export function polygonsToFeatureCollection(
   };
 }
 
+export function noticeCategoryColor(category: string): string {
+  const colors: Record<string, string> = {
+    suda: "#1b6b4a",
+    revenue: "#6d4c41",
+    rera: "#1565c0",
+    gst_registration: "#7b1fa2",
+    infrastructure: "#e65100",
+    general: "#5c6b62",
+  };
+  return colors[category] ?? "#5c6b62";
+}
+
+export function noticesToFeatureCollection(
+  notices: {
+    id: string;
+    title: string;
+    category: string;
+    latitude: number;
+    longitude: number;
+  }[]
+): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: notices.map((n) => ({
+      type: "Feature",
+      id: n.id,
+      properties: {
+        id: n.id,
+        title: n.title,
+        color: noticeCategoryColor(n.category),
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [n.longitude, n.latitude],
+      },
+    })),
+  };
+}
+
 export function listingsToFeatureCollection(
   listings: {
     id: string;

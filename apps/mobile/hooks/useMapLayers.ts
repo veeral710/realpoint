@@ -4,6 +4,7 @@ import type {
   MapOverlay,
   VillageMap,
   MapListingPin,
+  MapNoticePin,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
 
@@ -13,6 +14,7 @@ export function useMapLayers(listingIntent: string | null) {
   const [fpOverlays, setFpOverlays] = useState<MapOverlay[]>([]);
   const [villages, setVillages] = useState<VillageMap[]>([]);
   const [listings, setListings] = useState<MapListingPin[]>([]);
+  const [notices, setNotices] = useState<MapNoticePin[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,13 +23,15 @@ export function useMapLayers(listingIntent: string | null) {
     setError(null);
 
     const intentArg = listingIntent ?? "";
-    const [tpRes, dpRes, fpRes, vilRes, listRes] = await Promise.all([
-      supabase.rpc("get_map_tp_schemes"),
-      supabase.rpc("get_map_planning_overlays", { p_layer_type: "dp" }),
-      supabase.rpc("get_map_planning_overlays", { p_layer_type: "fp" }),
-      supabase.rpc("get_map_villages"),
-      supabase.rpc("get_map_listings", { p_intent: intentArg }),
-    ]);
+    const [tpRes, dpRes, fpRes, vilRes, listRes, noticeRes] =
+      await Promise.all([
+        supabase.rpc("get_map_tp_schemes"),
+        supabase.rpc("get_map_planning_overlays", { p_layer_type: "dp" }),
+        supabase.rpc("get_map_planning_overlays", { p_layer_type: "fp" }),
+        supabase.rpc("get_map_villages"),
+        supabase.rpc("get_map_listings", { p_intent: intentArg }),
+        supabase.rpc("get_map_notices"),
+      ]);
 
     const errors = [
       tpRes.error,
@@ -35,6 +39,7 @@ export function useMapLayers(listingIntent: string | null) {
       fpRes.error,
       vilRes.error,
       listRes.error,
+      noticeRes.error,
     ].filter(Boolean);
     if (errors.length) {
       setError(errors[0]!.message);
@@ -45,6 +50,7 @@ export function useMapLayers(listingIntent: string | null) {
     setFpOverlays((fpRes.data as MapOverlay[]) ?? []);
     setVillages((vilRes.data as VillageMap[]) ?? []);
     setListings((listRes.data as MapListingPin[]) ?? []);
+    setNotices((noticeRes.data as MapNoticePin[]) ?? []);
     setLoading(false);
   }, [listingIntent]);
 
@@ -58,6 +64,7 @@ export function useMapLayers(listingIntent: string | null) {
     fpOverlays,
     villages,
     listings,
+    notices,
     loading,
     error,
     refresh,
