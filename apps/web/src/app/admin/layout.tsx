@@ -45,6 +45,7 @@ export default async function AdminLayout({
         </Link>
         <Link href="/admin/news">News</Link>
         <Link href="/admin/listings">Listings</Link>
+        <Link href="/admin/tp-schemes">TP schemes</Link>
         <form
           action="/api/auth/signout"
           method="post"

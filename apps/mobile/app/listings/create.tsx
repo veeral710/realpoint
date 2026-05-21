@@ -11,12 +11,14 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 import {
   LISTING_INTENTS,
   PROPERTY_CLASSES,
   PROPERTY_CLASS_LABELS,
   AREA_UNITS,
   type Locality,
+  type TpScheme,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
@@ -26,6 +28,7 @@ export default function CreateListingScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const [localities, setLocalities] = useState<Locality[]>([]);
+  const [tpSchemes, setTpSchemes] = useState<TpScheme[]>([]);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
 
@@ -39,10 +42,13 @@ export default function CreateListingScreen() {
     area_value: "",
     area_unit: "sqyd",
     locality_id: "",
+    tp_scheme_id: "",
     contact_phone: "",
     contact_whatsapp: "",
     na_status: "",
     bhk: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
 
   useEffect(() => {
@@ -53,7 +59,39 @@ export default function CreateListingScreen() {
       .eq("district", "Surat")
       .order("sort_order")
       .then(({ data }) => setLocalities((data as Locality[]) ?? []));
+    supabase
+      .from("tp_schemes")
+      .select("id, scheme_number, name, status, taluka, area_name, center_lat, center_lng, overlay_color, sort_order, is_published, authority, district, name_gu, description, source_url, pdf_url")
+      .eq("is_published", true)
+      .order("sort_order")
+      .then(({ data }) => setTpSchemes((data as TpScheme[]) ?? []));
   }, [user]);
+
+  async function captureLocation() {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Location permission",
+        "Allow location access to pin your listing on the map."
+      );
+      return;
+    }
+    setLoading(true);
+    try {
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+      setForm({
+        ...form,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+    } catch {
+      Alert.alert("Location error", "Could not get GPS fix. Try again outdoors.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function pickImages() {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -90,6 +128,9 @@ export default function CreateListingScreen() {
       area_value: form.area_value ? parseFloat(form.area_value) : null,
       area_unit: form.area_value ? form.area_unit : null,
       locality_id: form.locality_id || null,
+      tp_scheme_id: form.tp_scheme_id || null,
+      latitude: form.latitude,
+      longitude: form.longitude,
       contact_phone: form.contact_phone || null,
       contact_whatsapp: form.contact_whatsapp || null,
       na_status: form.na_status || null,
@@ -232,6 +273,65 @@ export default function CreateListingScreen() {
           </Pressable>
         ))}
       </ScrollView>
+      <Text style={styles.label}>TP scheme (optional)</Text>
+      <ScrollView horizontal style={{ marginBottom: 12 }}>
+        <Pressable
+          style={[styles.chip, !form.tp_scheme_id && styles.chipOn]}
+          onPress={() => setForm({ ...form, tp_scheme_id: "" })}
+        >
+          <Text style={!form.tp_scheme_id ? styles.chipOnText : undefined}>
+            None
+          </Text>
+        </Pressable>
+        {tpSchemes.map((scheme) => (
+          <Pressable
+            key={scheme.id}
+            style={[
+              styles.chip,
+              form.tp_scheme_id === scheme.id && styles.chipOn,
+            ]}
+            onPress={() => setForm({ ...form, tp_scheme_id: scheme.id })}
+          >
+            <Text
+              style={
+                form.tp_scheme_id === scheme.id ? styles.chipOnText : undefined
+              }
+            >
+              {scheme.scheme_number}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+      <Text style={styles.label}>Map location</Text>
+      <Text style={styles.hint}>
+        Optional. Pin the property on the Surat map for buyers.
+      </Text>
+      {form.latitude != null && form.longitude != null ? (
+        <Text style={styles.coords}>
+          {form.latitude.toFixed(5)}, {form.longitude.toFixed(5)}
+        </Text>
+      ) : (
+        <Text style={styles.hint}>No GPS set — approximate pin may be used.</Text>
+      )}
+      <View style={styles.row}>
+        <Pressable
+          style={[styles.secondaryBtn, { flex: 1 }]}
+          onPress={captureLocation}
+          disabled={loading}
+        >
+          <Text style={styles.secondaryBtnText}>Use current location</Text>
+        </Pressable>
+        {form.latitude != null && (
+          <Pressable
+            style={styles.clearLoc}
+            onPress={() =>
+              setForm({ ...form, latitude: null, longitude: null })
+            }
+          >
+            <Text style={styles.clearLocText}>Clear</Text>
+          </Pressable>
+        )}
+      </View>
       <Text style={styles.label}>Contact phone</Text>
       <TextInput
         style={styles.input}
@@ -276,6 +376,10 @@ export default function CreateListingScreen() {
 const styles = StyleSheet.create({
   container: { padding: 16 },
   label: { fontWeight: "600", marginBottom: 6, marginTop: 8 },
+  hint: { color: colors.muted, fontSize: 12, marginBottom: 6 },
+  coords: { color: colors.primary, fontWeight: "600", marginBottom: 8 },
+  clearLoc: { padding: 14, justifyContent: "center" },
+  clearLocText: { color: colors.danger, fontWeight: "600" },
   input: {
     borderWidth: 1,
     borderColor: colors.border,

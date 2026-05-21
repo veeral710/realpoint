@@ -18,6 +18,7 @@
       "bundleIdentifier": "com.realpoint.surat",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Upload property photos for listings.",
+        "NSLocationWhenInUseUsageDescription": "Show your position on the Surat planning map.",
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         }
@@ -31,7 +32,9 @@
       "package": "com.realpoint.surat",
       "usesCleartextTraffic": true,
       "permissions": [
-        "RECEIVE_BOOT_COMPLETED"
+        "RECEIVE_BOOT_COMPLETED",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
       ]
     },
     "plugins": [
@@ -43,7 +46,13 @@
           "color": "#1b6b4a"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "RealPoint uses your location to place property listings on the Surat map."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

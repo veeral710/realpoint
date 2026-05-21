@@ -4,9 +4,9 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
-    "dev": "expo start --lan --port 8082",
-    "dev:ios": "expo start --ios --port 8082",
-    "dev:android": "expo start --android --port 8082",
+    "dev": "node ../../node_modules/expo/bin/cli start --lan --port 8082",
+    "dev:ios": "node ../../node_modules/expo/bin/cli start --ios --port 8082",
+    "dev:android": "node ../../node_modules/expo/bin/cli start --android --port 8082",
     "lint": "echo 'no lint configured'",
     "typecheck": "tsc --noEmit"
   },
@@ -20,6 +20,7 @@
     "expo-constants": "~18.0.13",
     "expo-image-picker": "~17.0.11",
     "expo-linking": "~8.0.12",
+    "expo-location": "~19.0.8",
     "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.23",
     "expo-secure-store": "~15.0.8",
@@ -30,6 +31,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-maps": "1.20.1",
     "react-native-safe-area-context": "5.6.2",
     "react-native-screens": "~4.16.0",
     "react-native-url-polyfill": "^2.0.0",

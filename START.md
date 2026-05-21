@@ -2,6 +2,15 @@
 
 Run **one command per line**. Do not paste lines that start with `#`.
 
+## First time (or after clone)
+
+```bash
+cd /Users/beactinfotech/realpoint
+pnpm install
+```
+
+If you see `expo: command not found`, run `pnpm install` from the repo root (not only inside `apps/mobile`).
+
 ## Terminal 1 — database
 
 ```bash
@@ -41,18 +50,35 @@ pnpm supabase:reset
 
 ## Terminal 3 — mobile (optional)
 
+**Do not run `expo start` from the repo root.** That uses the old global `expo-cli` (deprecated) and will fail on this monorepo.
+
+Use the project CLI instead:
+
+```bash
+cd /Users/beactinfotech/realpoint
+pnpm dev:mobile
+```
+
+Or from the app folder:
+
+```bash
+cd /Users/beactinfotech/realpoint/apps/mobile
+pnpm dev
+```
+
+Optional: remove the legacy global CLI so your shell does not pick it up:
+
+```bash
+npm uninstall -g expo-cli
+```
+
 Expo Go requires a **free** account (one-time):
 
 ```bash
 npx expo login
 ```
 
-Sign up at https://expo.dev/signup if needed, then:
-
-```bash
-cd /Users/beactinfotech/realpoint
-pnpm dev:mobile
-```
+Sign up at https://expo.dev/signup if needed, then run `pnpm dev:mobile` (see above).
 
 | Target | Command |
 |--------|---------|

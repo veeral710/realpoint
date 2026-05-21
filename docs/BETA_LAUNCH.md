@@ -7,7 +7,8 @@
 - [ ] `listing-images` storage bucket public read verified
 - [ ] Admin CMS: create/edit news at `/admin`
 - [ ] 10+ news items visible (seed migration or manual)
-- [ ] 5+ test listings posted from mobile
+- [ ] 5+ test listings posted from mobile (with GPS pin where possible)
+- [ ] Map tab: TP overlay, property pins, TP directory
 - [ ] Disclaimer shown on first app open
 - [ ] Privacy policy URL live (required by stores)
 

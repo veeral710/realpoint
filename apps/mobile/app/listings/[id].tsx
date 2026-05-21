@@ -10,7 +10,7 @@ import {
   Alert,
   Image,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   PROPERTY_CLASS_LABELS,
   type Listing,
@@ -21,11 +21,13 @@ import { colors } from "@/constants/theme";
 
 type ListingDetail = Listing & {
   localities?: { area_name: string; taluka: string | null } | null;
+  tp_schemes?: { id: string; scheme_number: string; name: string } | null;
   listing_media?: { storage_path: string }[];
 };
 
 export default function ListingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const [item, setItem] = useState<ListingDetail | null>(null);
   const [message, setMessage] = useState("");
@@ -34,7 +36,9 @@ export default function ListingDetailScreen() {
   useEffect(() => {
     supabase
       .from("listings")
-      .select("*, localities(area_name, taluka), listing_media(storage_path)")
+      .select(
+        "*, localities(area_name, taluka), tp_schemes(id, scheme_number, name), listing_media(storage_path)"
+      )
       .eq("id", id)
       .single()
       .then(({ data }) => setItem(data as ListingDetail | null));
@@ -114,6 +118,32 @@ export default function ListingDetailScreen() {
           {item.localities.taluka ? `, ${item.localities.taluka}` : ""}, Surat
         </Text>
       )}
+      {item.tp_schemes && (
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/map",
+              params: { scheme: item.tp_schemes!.id },
+            })
+          }
+        >
+          <Text style={styles.tpLink}>
+            TP: {item.tp_schemes.scheme_number} — {item.tp_schemes.name} (map)
+          </Text>
+        </Pressable>
+      )}
+      {item.latitude != null && item.longitude != null && (
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/map",
+              params: { listing: item.id },
+            })
+          }
+        >
+          <Text style={styles.tpLink}>View on map</Text>
+        </Pressable>
+      )}
       <Text style={styles.price}>
         {item.price
           ? `₹${Number(item.price).toLocaleString("en-IN")}`
@@ -169,6 +199,7 @@ const styles = StyleSheet.create({
   badge: { color: colors.primary, fontWeight: "600", marginTop: 12 },
   title: { fontSize: 22, fontWeight: "800", marginTop: 4 },
   loc: { color: colors.muted },
+  tpLink: { color: colors.primary, fontWeight: "600", marginTop: 4, marginBottom: 8 },
   price: { fontSize: 18, fontWeight: "700", marginVertical: 8 },
   body: { lineHeight: 22, marginBottom: 12 },
   meta: { gap: 4, marginBottom: 16 },

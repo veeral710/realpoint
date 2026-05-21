@@ -27,6 +27,7 @@ export default function RootLayout() {
           name="listings/create"
           options={{ title: "Post listing" }}
         />
+        <Stack.Screen name="maps" options={{ headerShown: false }} />
         <Stack.Screen name="saved" options={{ title: "Saved" }} />
         <Stack.Screen name="profile" options={{ title: "Profile" }} />
       </Stack>

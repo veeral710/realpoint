@@ -2,8 +2,10 @@ import { z } from "zod";
 import {
   AREA_UNITS,
   LISTING_INTENTS,
+  MAP_LAYER_TYPES,
   NEWS_CATEGORIES,
   PROPERTY_CLASSES,
+  TP_SCHEME_STATUSES,
   USER_ROLES,
 } from "./constants";
 
@@ -12,6 +14,8 @@ export const newsCategorySchema = z.enum(NEWS_CATEGORIES);
 export const listingIntentSchema = z.enum(LISTING_INTENTS);
 export const propertyClassSchema = z.enum(PROPERTY_CLASSES);
 export const areaUnitSchema = z.enum(AREA_UNITS);
+export const tpSchemeStatusSchema = z.enum(TP_SCHEME_STATUSES);
+export const mapLayerTypeSchema = z.enum(MAP_LAYER_TYPES);
 
 export const profileSchema = z.object({
   id: z.string().uuid(),
@@ -71,6 +75,8 @@ export const listingSchema = z.object({
   area_value: z.number().nullable(),
   area_unit: areaUnitSchema.nullable(),
   locality_id: z.string().uuid().nullable(),
+  tp_scheme_id: z.string().uuid().nullable(),
+  village_id: z.string().uuid().nullable(),
   address_text: z.string().nullable(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
@@ -100,6 +106,8 @@ export const createListingSchema = z.object({
   area_value: z.number().positive().optional(),
   area_unit: areaUnitSchema.optional(),
   locality_id: z.string().uuid().optional(),
+  tp_scheme_id: z.string().uuid().optional(),
+  village_id: z.string().uuid().optional(),
   address_text: z.string().max(500).optional(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
@@ -122,9 +130,110 @@ export const listingInquirySchema = z.object({
   contact_phone: z.string().optional(),
 });
 
+export const tpSchemeSchema = z.object({
+  id: z.string().uuid(),
+  scheme_number: z.string(),
+  name: z.string(),
+  name_gu: z.string().nullable(),
+  status: tpSchemeStatusSchema,
+  authority: z.string(),
+  district: z.string(),
+  taluka: z.string().nullable(),
+  area_name: z.string().nullable(),
+  description: z.string().nullable(),
+  source_url: z.string().url().nullable(),
+  pdf_url: z.string().url().nullable(),
+  center_lat: z.number(),
+  center_lng: z.number(),
+  overlay_color: z.string().nullable(),
+  sort_order: z.number(),
+  is_published: z.boolean(),
+});
+
+const geoJsonPolygonSchema = z.object({
+  type: z.literal("Polygon"),
+  coordinates: z.array(z.array(z.array(z.number()))),
+});
+
+export const tpSchemeMapSchema = tpSchemeSchema.extend({
+  boundary_geojson: geoJsonPolygonSchema.nullable().optional(),
+});
+
+export const mapOverlaySchema = z.object({
+  id: z.string().uuid(),
+  layer_type: mapLayerTypeSchema,
+  code: z.string().optional(),
+  name: z.string(),
+  taluka: z.string().nullable().optional(),
+  center_lat: z.number(),
+  center_lng: z.number(),
+  overlay_color: z.string(),
+  boundary_geojson: geoJsonPolygonSchema.nullable().optional(),
+});
+
+export const villageMapSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  taluka: z.string().nullable().optional(),
+  center_lat: z.number().nullable(),
+  center_lng: z.number().nullable(),
+  overlay_color: z.string().optional(),
+  boundary_geojson: geoJsonPolygonSchema.nullable().optional(),
+});
+
+export const mapListingPinSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  intent: listingIntentSchema,
+  property_class: propertyClassSchema,
+  price: z.number().nullable(),
+  latitude: z.number(),
+  longitude: z.number(),
+  locality_name: z.string().nullable().optional(),
+  tp_scheme_number: z.string().nullable().optional(),
+});
+
+export const villageSchema = z.object({
+  id: z.string().uuid(),
+  district: z.string(),
+  taluka: z.string().nullable(),
+  name: z.string(),
+  name_gu: z.string().nullable(),
+  center_lat: z.number().nullable(),
+  center_lng: z.number().nullable(),
+  source_url: z.string().url().nullable(),
+  is_published: z.boolean(),
+});
+
+export const createTpSchemeSchema = z.object({
+  scheme_number: z.string().min(1).max(50),
+  name: z.string().min(1).max(200),
+  name_gu: z.string().max(200).optional(),
+  status: tpSchemeStatusSchema.default("final"),
+  authority: z.string().max(100).default("SUDA"),
+  district: z.string().default("Surat"),
+  taluka: z.string().max(100).optional(),
+  area_name: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
+  source_url: z.string().url().optional().or(z.literal("")),
+  pdf_url: z.string().url().optional().or(z.literal("")),
+  center_lat: z.number(),
+  center_lng: z.number(),
+  overlay_color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  sort_order: z.number().int().default(0),
+  is_published: z.boolean().default(true),
+});
+
 export type Profile = z.infer<typeof profileSchema>;
 export type Locality = z.infer<typeof localitySchema>;
 export type NewsItem = z.infer<typeof newsItemSchema>;
 export type Listing = z.infer<typeof listingSchema>;
 export type CreateListing = z.infer<typeof createListingSchema>;
 export type CreateNewsItem = z.infer<typeof createNewsItemSchema>;
+export type TpScheme = z.infer<typeof tpSchemeSchema>;
+export type TpSchemeMap = z.infer<typeof tpSchemeMapSchema>;
+export type Village = z.infer<typeof villageSchema>;
+export type CreateTpScheme = z.infer<typeof createTpSchemeSchema>;
+export type MapOverlay = z.infer<typeof mapOverlaySchema>;
+export type VillageMap = z.infer<typeof villageMapSchema>;
+export type MapListingPin = z.infer<typeof mapListingPinSchema>;
