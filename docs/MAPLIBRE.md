@@ -1,42 +1,78 @@
-# MapLibre + georeferenced TP tiles (Phase 3d)
+# MapLibre (RealPoint)
 
-Current app: **react-native-maps** (works in Expo Go).  
-Target: **@maplibre/maplibre-react-native** with custom dev/production builds.
+RealPoint uses **MapLibre** in dev/production builds and falls back to **react-native-maps** in **Expo Go**.
 
-## Why a dev build?
+## Quick start (MapLibre)
 
-MapLibre needs native code. It does **not** run in Expo Go. Use EAS `development` profile:
+### 1. Install & prebuild (once)
+
+```bash
+cd /Users/beactinfotech/realpoint
+pnpm install
+cd apps/mobile
+npx expo prebuild   # optional locally; EAS Build runs this automatically
+```
+
+### 2. Create a development build
 
 ```bash
 cd apps/mobile
+eas login
+eas init   # set projectId in app.json extra.eas.projectId
 eas build -p android --profile development
-# install APK, then:
-pnpm dev   # Metro connects to dev client
+# or iOS:
+eas build -p ios --profile development
 ```
 
-## Implementation outline
+Install the APK/IPA on your device.
 
-1. **Install** (after dev client workflow is ready):
-   ```bash
-   pnpm add @maplibre/maplibre-react-native
-   ```
-   Add plugin to `app.json` per MapLibre Expo docs.
+### 3. Start Metro for the dev client
 
-2. **Tile source** — store georeferenced tiles in Supabase Storage or CDN:
-   - Upload XYZ/WebM tiles generated from official SUDA PDFs (GDAL/`gdal2tiles`, or QGIS)
-   - Table `map_tile_sources`: `tp_scheme_id`, `url_template`, `bounds`, `min_zoom`, `max_zoom`
+```bash
+cd /Users/beactinfotech/realpoint
+pnpm dev:mobile:client
+```
 
-3. **Replace `SuratMap.tsx`** — MapLibre `MapView` + `RasterSource` / `ImageSource` for each scheme
+Open the **RealPoint** dev app (not Expo Go) and scan/connect to Metro.
 
-4. **Opacity** — MapLibre layer `raster-opacity` per source (same UX as current sliders)
+## What you get with MapLibre
 
-5. **3D** — `pitch` / `bearing` on camera (optional)
+- Esri **satellite** basemap + street labels
+- TP / DP / FP / village **GeoJSON overlays** (same data as before)
+- **Property pins** as map circles
+- Ready for **georeferenced raster tiles** (XYZ) per TP scheme later
 
-## Data pipeline (ops)
+## Expo Go
 
-1. Obtain official TP/DP PDF from SUDA
-2. Georeference in QGIS (GCP points)
-3. Export tiles → bucket `map-tiles/{scheme_id}/{z}/{x}/{y}.png`
-4. Register in admin CMS (future: `/admin/map-tiles`)
+`pnpm dev:mobile` still works in Expo Go with the legacy map + a yellow banner on the Map tab.
 
-Until tiles exist, keep polygon overlays from PostGIS (`get_map_tp_schemes`).
+## Georeferenced TP tiles (next)
+
+1. Georeference official SUDA PDFs → tile pyramid (GDAL / QGIS)
+2. Upload to Supabase Storage: `map-tiles/{scheme_id}/{z}/{x}/{y}.png`
+3. Add `RasterSource` in `SuratMapLibre.tsx` per scheme
+4. Opacity via `raster-opacity` (same sliders as today)
+
+Table sketch (future migration):
+
+```sql
+map_tile_sources (tp_scheme_id, url_template, min_zoom, max_zoom, bounds)
+```
+
+## Files
+
+| File | Role |
+|------|------|
+| `components/SuratMapLibre.tsx` | MapLibre map |
+| `components/SuratMapLegacy.tsx` | Expo Go fallback |
+| `lib/map-styles.ts` | Street + satellite styles |
+| `lib/map-engine.ts` | Expo Go detection |
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| Blank map | Device online (satellite tiles need network) |
+| Still basic map | You opened **Expo Go** — use the **dev build** |
+| Build fails | `newArchEnabled: true` required (already set) |
+| iOS pods | Run `eas build` or `npx expo prebuild` + `pod install` |

@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "pnpm run --parallel dev",
     "dev:mobile": "pnpm --filter @realpoint/mobile dev",
+    "dev:mobile:client": "pnpm --filter @realpoint/mobile dev:client",
     "start:mobile": "pnpm --filter @realpoint/mobile dev",
     "dev:web": "pnpm --filter @realpoint/web dev",
     "build": "pnpm run -r build",

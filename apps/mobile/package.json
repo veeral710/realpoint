@@ -5,6 +5,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "node ../../node_modules/expo/bin/cli start --lan --port 8082",
+    "dev:client": "node ../../node_modules/expo/bin/cli start --dev-client --lan --port 8082",
     "dev:ios": "node ../../node_modules/expo/bin/cli start --ios --port 8082",
     "dev:android": "node ../../node_modules/expo/bin/cli start --android --port 8082",
     "lint": "echo 'no lint configured'",
@@ -13,11 +14,13 @@
   "dependencies": {
     "@expo/metro-config": "~54.0.15",
     "@expo/metro-runtime": "^6.1.2",
+    "@maplibre/maplibre-react-native": "^11.2.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@realpoint/shared": "workspace:*",
     "@supabase/supabase-js": "^2.49.4",
     "expo": "~54.0.34",
     "expo-constants": "~18.0.13",
+    "expo-dev-client": "^55.0.35",
     "expo-image-picker": "~17.0.11",
     "expo-linking": "~8.0.12",
     "expo-location": "~19.0.8",

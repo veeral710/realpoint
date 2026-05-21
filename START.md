@@ -52,7 +52,20 @@ pnpm supabase:reset
 
 **Do not run `expo start` from the repo root.** That uses the old global `expo-cli` (deprecated) and will fail on this monorepo.
 
-Use the project CLI instead:
+### MapLibre (recommended for Map tab)
+
+MapLibre does **not** run in Expo Go. Use an EAS **development** build:
+
+```bash
+cd apps/mobile
+eas build -p android --profile development
+# install APK, then from repo root:
+pnpm dev:mobile:client
+```
+
+See [docs/MAPLIBRE.md](docs/MAPLIBRE.md).
+
+### Expo Go (quick test, basic map only)
 
 ```bash
 cd /Users/beactinfotech/realpoint

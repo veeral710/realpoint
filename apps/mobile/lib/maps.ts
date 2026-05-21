@@ -107,6 +107,66 @@ export function villagesToPolygons(
   );
 }
 
+export function hexAlpha(hex: string): number {
+  const normalized = hex.replace("#", "");
+  if (normalized.length >= 8) {
+    return parseInt(normalized.slice(6, 8), 16) / 255;
+  }
+  return 0.45;
+}
+
+export function polygonsToFeatureCollection(
+  polygons: MapPolygon[]
+): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: polygons.map((poly) => ({
+      type: "Feature",
+      id: poly.id,
+      properties: {
+        id: poly.id,
+        name: poly.name,
+        fillColor: poly.strokeColor,
+        fillOpacity: hexAlpha(poly.fillColor),
+        strokeColor: poly.strokeColor,
+      },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          poly.coordinates.map((c) => [c.longitude, c.latitude] as [number, number]),
+        ],
+      },
+    })),
+  };
+}
+
+export function listingsToFeatureCollection(
+  listings: {
+    id: string;
+    title: string;
+    intent: string;
+    latitude: number;
+    longitude: number;
+  }[]
+): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: listings.map((l) => ({
+      type: "Feature",
+      id: l.id,
+      properties: {
+        id: l.id,
+        title: l.title,
+        color: intentPinColor(l.intent),
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [l.longitude, l.latitude],
+      },
+    })),
+  };
+}
+
 export function intentPinColor(intent: string): string {
   switch (intent) {
     case "sell":
