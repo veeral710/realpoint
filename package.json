@@ -16,7 +16,10 @@
     "supabase:reset": "supabase db reset",
     "env:local": "node scripts/print-local-env.mjs",
     "seed:admin": "bash scripts/seed-dev-admin.sh",
-    "seed:listings": "PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -f supabase/migrations/20250521000006_seed_listings.sql"
+    "seed:users": "bash scripts/seed-dev-users.sh",
+    "seed:listings": "PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -f supabase/migrations/20250521000006_seed_listings.sql",
+    "demo:reset": "bash scripts/demo-reset.sh",
+    "seed:m2": "PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -f scripts/seed-m2-demo.sql"
   },
   "engines": {
     "node": ">=20"

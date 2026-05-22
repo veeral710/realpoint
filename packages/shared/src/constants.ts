@@ -114,3 +114,9 @@ export const MAP_DISCLAIMER =
 
 export const DISCLAIMER_TEXT =
   "RealPoint is not affiliated with any government body. Information is for reference only. Verify all details independently before any transaction. We are not responsible for losses from use of this app.";
+
+/** Shown on mobile tabs and scheme screens in demo / local builds */
+export const DEMO_BANNER_TEXT =
+  "Sample Surat data for demo — not official government or market records.";
+
+export const DEMO_AREA_FILTERS = ["Vesu", "Adajan", "Varachha"] as const;

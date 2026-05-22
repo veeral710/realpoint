@@ -10,9 +10,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
+  TP_SCHEME_STATUSES,
   TP_SCHEME_STATUS_LABELS,
   type TpScheme,
 } from "@realpoint/shared";
+import { DemoBanner } from "@/components/DemoBanner";
 import { supabase } from "@/lib/supabase";
 import { useEffect } from "react";
 import { colors } from "@/constants/theme";
@@ -20,6 +22,7 @@ import { colors } from "@/constants/theme";
 export default function TpDirectoryScreen() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [schemes, setSchemes] = useState<TpScheme[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,24 +41,44 @@ export default function TpDirectoryScreen() {
   }, []);
 
   const filtered = useMemo(() => {
+    let list = schemes;
+    if (statusFilter) list = list.filter((s) => s.status === statusFilter);
     const q = query.trim().toLowerCase();
-    if (!q) return schemes;
-    return schemes.filter(
+    if (!q) return list;
+    return list.filter(
       (s) =>
         s.name.toLowerCase().includes(q) ||
         s.scheme_number.toLowerCase().includes(q) ||
         (s.area_name?.toLowerCase().includes(q) ?? false) ||
         (s.taluka?.toLowerCase().includes(q) ?? false)
     );
-  }, [schemes, query]);
+  }, [schemes, query, statusFilter]);
 
   return (
     <View style={styles.container}>
+      <DemoBanner />
       <TextInput
         style={styles.search}
         placeholder="Search scheme, area, taluka…"
         value={query}
         onChangeText={setQuery}
+      />
+      <FlatList
+        horizontal
+        data={[null, ...TP_SCHEME_STATUSES]}
+        keyExtractor={(s) => s ?? "all-status"}
+        showsHorizontalScrollIndicator={false}
+        style={styles.statusFilters}
+        renderItem={({ item: s }) => (
+          <Pressable
+            style={[styles.chip, statusFilter === s && styles.chipOn]}
+            onPress={() => setStatusFilter(s)}
+          >
+            <Text style={[styles.chipText, statusFilter === s && styles.chipOnText]}>
+              {s ? TP_SCHEME_STATUS_LABELS[s] : "All status"}
+            </Text>
+          </Pressable>
+        )}
       />
       <FlatList
         data={filtered}
@@ -113,8 +136,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     backgroundColor: colors.surface,
-    marginBottom: 12,
+    marginBottom: 8,
   },
+  statusFilters: { maxHeight: 44, marginBottom: 12 },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    marginRight: 8,
+  },
+  chipOn: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
+  chipText: { fontSize: 12, color: colors.muted },
+  chipOnText: { color: colors.primary, fontWeight: "600" },
   card: {
     backgroundColor: colors.surface,
     borderRadius: 12,

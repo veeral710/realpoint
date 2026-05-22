@@ -11,8 +11,9 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { getLocale, setLocale, type Locale } from "@/lib/i18n";
-import { registerForPushNotifications } from "@/lib/push";
+import { enableDemoPushAlerts } from "@/lib/integrations/mock-push";
 import { USER_ROLES } from "@realpoint/shared";
+import { DemoBanner } from "@/components/DemoBanner";
 import { colors } from "@/constants/theme";
 
 export default function AccountScreen() {
@@ -51,12 +52,12 @@ export default function AccountScreen() {
       Alert.alert("Login required");
       return;
     }
-    await registerForPushNotifications(user.id);
-    Alert.alert("Push enabled", "You will receive updates on new circulars.");
+    await enableDemoPushAlerts();
   }
 
   return (
     <View style={styles.container}>
+      <DemoBanner />
       {user ? (
         <>
           <Text style={styles.phone}>{profile?.phone ?? user.phone}</Text>
@@ -89,8 +90,33 @@ export default function AccountScreen() {
           <Pressable style={styles.link} onPress={() => router.push("/saved")}>
             <Text style={styles.linkText}>Saved items →</Text>
           </Pressable>
+          <Pressable style={styles.link} onPress={() => router.push("/inbox")}>
+            <Text style={styles.linkText}>Inquiries on my listings →</Text>
+          </Pressable>
+          <Pressable
+            style={styles.link}
+            onPress={() =>
+              router.push({
+                pathname: "/documents/request",
+                params: { type: "seven_twelve" },
+              })
+            }
+          >
+            <Text style={styles.linkText}>Request 7/12 (demo) →</Text>
+          </Pressable>
+          <Pressable
+            style={styles.link}
+            onPress={() =>
+              router.push({
+                pathname: "/documents/request",
+                params: { type: "property_card" },
+              })
+            }
+          >
+            <Text style={styles.linkText}>Request property card (demo) →</Text>
+          </Pressable>
           <Pressable style={styles.link} onPress={enablePush}>
-            <Text style={styles.linkText}>Enable push notifications</Text>
+            <Text style={styles.linkText}>Demo notice alert (local push)</Text>
           </Pressable>
           <Pressable style={styles.btnOutline} onPress={signOut}>
             <Text style={styles.btnOutlineText}>Sign out</Text>

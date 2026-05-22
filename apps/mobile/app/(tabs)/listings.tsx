@@ -15,11 +15,15 @@ import {
   type Listing,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
+import { DemoBanner } from "@/components/DemoBanner";
+import { FilterChipRow } from "@/components/FilterChipRow";
 import { colors } from "@/constants/theme";
+
+type ListingRow = Listing & { localities?: { area_name: string } };
 
 export default function ListingsScreen() {
   const router = useRouter();
-  const [items, setItems] = useState<(Listing & { localities?: { area_name: string } })[]>([]);
+  const [items, setItems] = useState<ListingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [intent, setIntent] = useState<string | null>(null);
   const [propertyClass, setPropertyClass] = useState<string | null>(null);
@@ -44,56 +48,47 @@ export default function ListingsScreen() {
     load();
   }, [load]);
 
-  return (
-    <View style={styles.container}>
+  const header = (
+    <View style={styles.header}>
+      <DemoBanner />
       <Pressable
         style={styles.postBtn}
         onPress={() => router.push("/listings/create")}
       >
         <Text style={styles.postBtnText}>+ Post property</Text>
       </Pressable>
-      <FlatList
-        horizontal
-        data={[null, ...LISTING_INTENTS]}
-        keyExtractor={(i) => i ?? "all-intent"}
-        showsHorizontalScrollIndicator={false}
-        style={styles.filters}
-        renderItem={({ item: i }) => (
-          <Pressable
-            style={[styles.chip, intent === i && styles.chipActive]}
-            onPress={() => setIntent(i)}
-          >
-            <Text style={[styles.chipText, intent === i && styles.chipTextActive]}>
-              {i ?? "All intents"}
-            </Text>
-          </Pressable>
-        )}
+      <FilterChipRow
+        chips={[
+          { value: null, label: "All intents" },
+          ...LISTING_INTENTS.map((i) => ({
+            value: i,
+            label: i.charAt(0).toUpperCase() + i.slice(1),
+          })),
+        ]}
+        selected={intent}
+        onSelect={setIntent}
       />
-      <FlatList
-        horizontal
-        data={[null, ...PROPERTY_CLASSES]}
-        keyExtractor={(c) => c ?? "all-class"}
-        showsHorizontalScrollIndicator={false}
-        style={styles.filters}
-        renderItem={({ item: c }) => (
-          <Pressable
-            style={[styles.chip, propertyClass === c && styles.chipActive]}
-            onPress={() => setPropertyClass(c)}
-          >
-            <Text
-              style={[
-                styles.chipText,
-                propertyClass === c && styles.chipTextActive,
-              ]}
-            >
-              {c ? PROPERTY_CLASS_LABELS[c] : "All types"}
-            </Text>
-          </Pressable>
-        )}
+      <FilterChipRow
+        chips={[
+          { value: null, label: "All types" },
+          ...PROPERTY_CLASSES.map((c) => ({
+            value: c,
+            label: PROPERTY_CLASS_LABELS[c],
+          })),
+        ]}
+        selected={propertyClass}
+        onSelect={setPropertyClass}
       />
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
       <FlatList
         data={items}
         keyExtractor={(i) => i.id}
+        ListHeaderComponent={header}
+        contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={load} />
         }
@@ -129,28 +124,19 @@ export default function ListingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  header: { backgroundColor: colors.bg },
+  listContent: { paddingBottom: 24 },
   postBtn: {
-    margin: 12,
+    marginHorizontal: 12,
+    marginTop: 8,
+    marginBottom: 4,
     backgroundColor: colors.primary,
     padding: 14,
     borderRadius: 10,
     alignItems: "center",
   },
   postBtnText: { color: "#fff", fontWeight: "700" },
-  filters: { maxHeight: 44, marginBottom: 4, paddingHorizontal: 8 },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: 8,
-  },
-  chipActive: { backgroundColor: colors.primaryLight, borderColor: colors.primary },
-  chipText: { fontSize: 12, color: colors.muted },
-  chipTextActive: { color: colors.primary, fontWeight: "600" },
   card: {
     marginHorizontal: 12,
     marginBottom: 10,
@@ -161,8 +147,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   badge: { fontSize: 11, color: colors.primary, fontWeight: "600" },
-  title: { fontSize: 16, fontWeight: "700", marginTop: 4 },
+  title: { fontSize: 16, fontWeight: "700", marginTop: 4, color: colors.text },
   loc: { color: colors.muted, marginTop: 4 },
-  price: { marginTop: 8, fontWeight: "600" },
+  price: { marginTop: 8, fontWeight: "600", color: colors.text },
   empty: { textAlign: "center", padding: 24, color: colors.muted },
 });

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { NEWS_CATEGORY_LABELS } from "@realpoint/shared";
+import { DuplicateNewsButton } from "@/components/DuplicateNewsButton";
 
 export default async function AdminNewsPage() {
   const supabase = await createClient();
@@ -40,6 +41,7 @@ export default async function AdminNewsPage() {
               <td>{item.is_published ? "Live" : "Draft"}</td>
               <td>
                 <Link href={`/admin/news/${item.id}`}>Edit</Link>
+                <DuplicateNewsButton itemId={item.id} />
               </td>
             </tr>
           ))}

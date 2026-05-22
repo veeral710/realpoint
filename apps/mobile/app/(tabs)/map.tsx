@@ -13,12 +13,15 @@ import {
   MAP_DISCLAIMER,
   MAP_LAYER_LABELS,
   NEWS_CATEGORY_LABELS,
+  NEWS_CATEGORY_MAP_COLORS,
   PROPERTY_CLASS_LABELS,
   type MapOverlay,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
 import { SuratMap } from "@/components/SuratMap";
+import { DemoBanner } from "@/components/DemoBanner";
 import { useMapLayers } from "@/hooks/useMapLayers";
+import { loadMapPrefs, saveMapPrefs } from "@/lib/map-prefs";
 import { colors } from "@/constants/theme";
 
 export default function MapTabScreen() {
@@ -49,6 +52,7 @@ export default function MapTabScreen() {
   const [tpOpacity, setTpOpacity] = useState(0.45);
   const [overlayOpacity, setOverlayOpacity] = useState(0.35);
   const [panelExpanded, setPanelExpanded] = useState(true);
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
 
   const [selectedSchemeId, setSelectedSchemeId] = useState<string | null>(
     typeof params.scheme === "string" ? params.scheme : null
@@ -57,6 +61,43 @@ export default function MapTabScreen() {
     typeof params.listing === "string" ? params.listing : null
   );
   const [selectedNoticeId, setSelectedNoticeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadMapPrefs().then((p) => {
+      if (!params.mode && !params.scheme && !params.listing) {
+        setMapMode(p.mapMode);
+        setShowTp(p.showTp);
+        setShowDp(p.showDp);
+        setShowVillages(p.showVillages);
+        setShowNotices(p.showNotices);
+        setShowFp(p.showFp);
+        setSatellite(p.satellite);
+      }
+      setPrefsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!prefsLoaded) return;
+    saveMapPrefs({
+      mapMode,
+      showTp,
+      showDp,
+      showVillages,
+      showNotices,
+      showFp,
+      satellite,
+    });
+  }, [
+    prefsLoaded,
+    mapMode,
+    showTp,
+    showDp,
+    showVillages,
+    showNotices,
+    showFp,
+    satellite,
+  ]);
 
   useEffect(() => {
     if (typeof params.scheme === "string") setSelectedSchemeId(params.scheme);
@@ -133,6 +174,7 @@ export default function MapTabScreen() {
 
   return (
     <View style={styles.container}>
+      <DemoBanner />
       <SuratMap
         schemes={schemes}
         dpOverlays={dpOverlays}
@@ -239,6 +281,23 @@ export default function MapTabScreen() {
             </View>
             {mapMode === "planning" && (
               <>
+                <Text style={styles.section}>Legend (illustrative)</Text>
+                <View style={styles.legendRow}>
+                  <View style={[styles.legendDot, { backgroundColor: "#2e7d52" }]} />
+                  <Text style={styles.legendText}>{MAP_LAYER_LABELS.tp}</Text>
+                </View>
+                <View style={styles.legendRow}>
+                  <View style={[styles.legendDot, { backgroundColor: "#1565c0" }]} />
+                  <Text style={styles.legendText}>{MAP_LAYER_LABELS.dp}</Text>
+                </View>
+                <View style={styles.legendRow}>
+                  <View style={[styles.legendDot, { backgroundColor: "#6d4c41" }]} />
+                  <Text style={styles.legendText}>{MAP_LAYER_LABELS.village}</Text>
+                </View>
+                <View style={styles.legendRow}>
+                  <View style={[styles.legendDot, { backgroundColor: NEWS_CATEGORY_MAP_COLORS.suda }]} />
+                  <Text style={styles.legendText}>Public notices</Text>
+                </View>
                 <Text style={styles.section}>Planning layers</Text>
                 <View style={styles.row}>
                   <Text style={styles.label}>{MAP_LAYER_LABELS.tp}</Text>
@@ -469,6 +528,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   sectionHint: { color: colors.muted, fontSize: 12, marginBottom: 8, lineHeight: 18 },
+  legendRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
+  legendDot: { width: 10, height: 10, borderRadius: 5, marginRight: 8 },
+  legendText: { fontSize: 12, color: colors.muted },
   modeRow: { flexDirection: "row", gap: 8, marginBottom: 6 },
   modeChip: {
     flex: 1,

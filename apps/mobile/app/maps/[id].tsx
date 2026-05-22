@@ -169,9 +169,20 @@ export default function TpSchemeDetailScreen() {
           style={styles.linkBtn}
           onPress={() => Linking.openURL(scheme.pdf_url!)}
         >
-          <Text style={styles.linkText}>View scheme PDF</Text>
+          <Text style={styles.linkText}>View sample scheme PDF (demo)</Text>
         </Pressable>
       ) : null}
+      <Pressable
+        style={styles.linkBtn}
+        onPress={() =>
+          router.push({
+            pathname: "/documents/request",
+            params: { type: "seven_twelve", scheme: scheme.id },
+          })
+        }
+      >
+        <Text style={styles.linkText}>Request 7/12 for this area (demo)</Text>
+      </Pressable>
       <Text style={styles.disclaimer}>{MAP_DISCLAIMER}</Text>
     </ScrollView>
   );

@@ -1,15 +1,24 @@
 import type { StyleSpecification } from "@maplibre/maplibre-react-native";
 
-/** MapLibre demo tiles — streets / labels (development). */
-export const MAP_STYLE_STREETS =
-  "https://demotiles.maplibre.org/style.json";
+/** OpenStreetMap raster — works on device when HTTPS is available (preferred for local demo). */
+export const MAP_STYLE_OSM: StyleSpecification = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "© OpenStreetMap contributors",
+    },
+  },
+  layers: [{ id: "osm", type: "raster", source: "osm" }],
+};
 
-/** Raster satellite (often more reliable than inline StyleSpecification on device). */
-export const MAP_STYLE_SATELLITE_URL =
+/** MapLibre demo style (needs fetch; can hang on some devices). */
+export const MAP_STYLE_STREETS_URL =
   "https://demotiles.maplibre.org/style.json";
 
 /** Esri World Imagery raster basemap (satellite/hybrid feel). */
-/** Inline Esri satellite + labels (may fail offline or on strict networks). */
 export const MAP_STYLE_SATELLITE: StyleSpecification = {
   version: 8,
   glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",

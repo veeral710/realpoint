@@ -23,6 +23,14 @@ export default async function AdminDashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
+      <p className="alert" style={{ marginBottom: "1rem" }}>
+        All counts are <strong>demo / mock</strong> data for local testing. Reset
+        with <code>pnpm demo:reset</code> — see{" "}
+        <a href="https://github.com/veeral710/realpoint/blob/main/docs/DEMO-DATA.md">
+          docs/DEMO-DATA.md
+        </a>
+        .
+      </p>
       <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
         <div className="card" style={{ flex: 1, minWidth: 200 }}>
           <h3>News items</h3>

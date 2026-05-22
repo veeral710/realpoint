@@ -11,7 +11,7 @@ import {
 } from "@maplibre/maplibre-react-native";
 import type { TpSchemeMap } from "@realpoint/shared";
 import { SURAT_MAP_CENTER } from "@realpoint/shared";
-import { MAP_STYLE_SATELLITE, MAP_STYLE_STREETS } from "@/lib/map-styles";
+import { MAP_STYLE_OSM, MAP_STYLE_SATELLITE } from "@/lib/map-styles";
 import {
   tpSchemesToPolygons,
   overlaysToPolygons,
@@ -90,10 +90,12 @@ export function SuratMapLibre({
   onSchemePress,
   onListingPress,
   onNoticePress,
-}: SuratMapProps) {
+  onEngineFailed,
+}: SuratMapProps & { onEngineFailed?: () => void }) {
   const cameraRef = useRef<CameraRef>(null);
   const [styleFailed, setStyleFailed] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
 
   const tpGeo = useMemo(
     () =>
@@ -135,11 +137,22 @@ export function SuratMapLibre({
   );
 
   const wantSatellite = mapType === "hybrid" || mapType === "satellite";
-  const mapStyle = styleFailed
-    ? MAP_STYLE_STREETS
+  const mapStyle = styleFailed || loadTimedOut
+    ? MAP_STYLE_OSM
     : wantSatellite
       ? MAP_STYLE_SATELLITE
-      : MAP_STYLE_STREETS;
+      : MAP_STYLE_OSM;
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!mapReady) {
+        setLoadTimedOut(true);
+        setMapReady(true);
+        onEngineFailed?.();
+      }
+    }, 8000);
+    return () => clearTimeout(t);
+  }, [mapReady, onEngineFailed]);
 
   const initialCenter: [number, number] = focusCenter
     ? [focusCenter.longitude, focusCenter.latitude]
@@ -161,20 +174,26 @@ export function SuratMapLibre({
           <Text style={styles.loadingText}>Loading map…</Text>
         </View>
       )}
-      {styleFailed && wantSatellite && (
+      {(styleFailed || loadTimedOut) && (
         <View style={styles.hint}>
           <Text style={styles.hintText}>
-            Satellite tiles unavailable — showing street map.
+            {loadTimedOut
+              ? "Map tiles slow or blocked — switched to standard map. Ensure phone has internet."
+              : "Satellite unavailable — showing OpenStreetMap."}
           </Text>
         </View>
       )}
       <Map
         style={styles.map}
         mapStyle={mapStyle}
-        onDidFinishLoadingMap={() => setMapReady(true)}
+        onDidFinishLoadingMap={() => {
+          setMapReady(true);
+          setLoadTimedOut(false);
+        }}
         onDidFailLoadingMap={() => {
           setStyleFailed(true);
           setMapReady(true);
+          onEngineFailed?.();
         }}
       >
         <Camera

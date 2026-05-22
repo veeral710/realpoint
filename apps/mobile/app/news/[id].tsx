@@ -9,7 +9,7 @@ import {
   Share,
   Alert,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   NEWS_CATEGORY_LABELS,
   type NewsItem,
@@ -21,6 +21,7 @@ import { colors } from "@/constants/theme";
 
 export default function NewsDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const [item, setItem] = useState<NewsItem | null>(null);
   const [saved, setSaved] = useState(false);
@@ -100,6 +101,19 @@ export default function NewsDetailScreen() {
           <Text style={styles.link}>Open PDF →</Text>
         </Pressable>
       )}
+      {item.latitude != null && item.longitude != null && (
+        <Pressable
+          style={styles.mapBtn}
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/map",
+              params: { mode: "planning" },
+            })
+          }
+        >
+          <Text style={styles.mapBtnText}>View on planning map</Text>
+        </Pressable>
+      )}
       <View style={styles.actions}>
         <Pressable style={styles.btn} onPress={toggleSave}>
           <Text style={styles.btnText}>{saved ? "Saved ✓" : "Save"}</Text>
@@ -123,6 +137,16 @@ const styles = StyleSheet.create({
   date: { color: colors.muted, marginBottom: 16 },
   body: { fontSize: 16, lineHeight: 24, marginBottom: 16 },
   link: { color: colors.primary, fontWeight: "600", marginBottom: 8 },
+  mapBtn: {
+    marginTop: 8,
+    marginBottom: 8,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    alignItems: "center",
+  },
+  mapBtnText: { color: colors.primary, fontWeight: "600" },
   actions: { flexDirection: "row", gap: 10, marginTop: 16 },
   btn: {
     flex: 1,

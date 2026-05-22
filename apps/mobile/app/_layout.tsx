@@ -29,6 +29,11 @@ export default function RootLayout() {
         />
         <Stack.Screen name="maps" options={{ headerShown: false }} />
         <Stack.Screen name="saved" options={{ title: "Saved" }} />
+        <Stack.Screen name="inbox" options={{ title: "Inquiries" }} />
+        <Stack.Screen
+          name="documents/request"
+          options={{ title: "Document request" }}
+        />
         <Stack.Screen name="profile" options={{ title: "Profile" }} />
       </Stack>
     </AuthProvider>

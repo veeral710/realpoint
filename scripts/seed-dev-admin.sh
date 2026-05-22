@@ -6,9 +6,24 @@ SERVICE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e
 EMAIL="admin@realpoint.local"
 PASSWORD="realpoint123"
 
-EXISTING=$(curl -s "$URL/auth/v1/admin/users?email=$EMAIL" \
-  -H "apikey: $SERVICE_KEY" \
-  -H "Authorization: Bearer $SERVICE_KEY" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+auth_user_id() {
+  python3 - "$1" "$URL" "$SERVICE_KEY" <<'PY'
+import json, sys, urllib.request
+email, url, key = sys.argv[1], sys.argv[2], sys.argv[3]
+req = urllib.request.Request(
+    f"{url}/auth/v1/admin/users?page=1&per_page=200",
+    headers={"apikey": key, "Authorization": f"Bearer {key}"},
+)
+with urllib.request.urlopen(req) as r:
+    data = json.load(r)
+for u in data.get("users", []):
+    if u.get("email") == email:
+        print(u["id"])
+        break
+PY
+}
+
+EXISTING=$(auth_user_id "$EMAIL" || true)
 
 if [ -n "$EXISTING" ]; then
   curl -s -X PUT "$URL/auth/v1/admin/users/$EXISTING" \

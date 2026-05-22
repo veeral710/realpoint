@@ -6,7 +6,18 @@ import {
 } from "@/lib/map-engine";
 import { colors } from "@/constants/theme";
 
-export function MapEngineBanner() {
+export function MapEngineBanner({ engine }: { engine?: "maplibre" | "legacy" }) {
+  if (engine === "legacy" && isMapLibreNativeAvailable() && !isExpoGo()) {
+    return (
+      <View style={[styles.banner, styles.warn]}>
+        <Text style={styles.text}>
+          Using standard map (MapLibre tiles did not load). Check phone internet
+          or rebuild dev APK.
+        </Text>
+      </View>
+    );
+  }
+
   if (isExpoGo()) {
     return (
       <View style={[styles.banner, styles.warn]}>

@@ -2,6 +2,14 @@
 
 Run **one command per line**. Do not paste lines that start with `#`.
 
+## Demo reset (mock data)
+
+```bash
+pnpm demo:reset
+```
+
+See [docs/DEMO-DATA.md](docs/DEMO-DATA.md) for demo logins (admin, buyer, agent).
+
 ## First time (or after clone)
 
 ```bash

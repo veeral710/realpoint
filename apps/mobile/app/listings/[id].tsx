@@ -16,6 +16,7 @@ import {
   type Listing,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
+import { openListingWhatsApp } from "@/lib/integrations/mock-whatsapp";
 import { useAuth } from "@/lib/auth";
 import { colors } from "@/constants/theme";
 
@@ -61,19 +62,19 @@ export default function ListingDetailScreen() {
     });
     if (error) Alert.alert("Error", error.message);
     else {
-      Alert.alert("Sent", "Your inquiry was sent to the owner.");
+      Alert.alert(
+        "Sent (demo)",
+        "Your inquiry was saved. The listing owner can see it under Account → Inquiries."
+      );
       setMessage("");
     }
   }
 
   function contactWhatsApp() {
-    const num = item?.contact_whatsapp ?? item?.contact_phone;
-    if (!num) {
-      Alert.alert("No contact", "Owner did not provide WhatsApp.");
-      return;
-    }
-    const clean = num.replace(/\D/g, "");
-    Linking.openURL(`https://wa.me/${clean}?text=${encodeURIComponent(`Hi, interested in: ${item?.title}`)}`);
+    openListingWhatsApp(
+      item?.contact_whatsapp ?? item?.contact_phone,
+      item?.title ?? "property"
+    );
   }
 
   function contactCall() {
@@ -118,31 +119,55 @@ export default function ListingDetailScreen() {
           {item.localities.taluka ? `, ${item.localities.taluka}` : ""}, Surat
         </Text>
       )}
-      {item.tp_schemes && (
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: "/(tabs)/map",
-              params: { scheme: item.tp_schemes!.id },
-            })
-          }
-        >
-          <Text style={styles.tpLink}>
-            TP: {item.tp_schemes.scheme_number} — {item.tp_schemes.name} (map)
-          </Text>
-        </Pressable>
-      )}
-      {item.latitude != null && item.longitude != null && (
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: "/(tabs)/map",
-              params: { listing: item.id },
-            })
-          }
-        >
-          <Text style={styles.tpLink}>View on map</Text>
-        </Pressable>
+      {(item.tp_schemes || item.latitude != null) && (
+        <View style={styles.planningBox}>
+          <Text style={styles.planningTitle}>Planning context (demo)</Text>
+          {item.tp_schemes ? (
+            <Pressable
+              onPress={() =>
+                router.push(`/maps/${item.tp_schemes!.id}`)
+              }
+            >
+              <Text style={styles.tpLink}>
+                {item.tp_schemes.scheme_number} — {item.tp_schemes.name}
+              </Text>
+            </Pressable>
+          ) : null}
+          {item.tp_schemes ? (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/map",
+                  params: { scheme: item.tp_schemes!.id, mode: "planning" },
+                })
+              }
+            >
+              <Text style={styles.tpLink}>Open TP on map</Text>
+            </Pressable>
+          ) : null}
+          {item.latitude != null && item.longitude != null && (
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/map",
+                  params: { listing: item.id, mode: "listings" },
+                })
+              }
+            >
+              <Text style={styles.tpLink}>View listing pin on map</Text>
+            </Pressable>
+          )}
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/documents/request",
+                params: { type: "seven_twelve", listing: item.id },
+              })
+            }
+          >
+            <Text style={styles.tpLink}>Request 7/12 for this plot (demo)</Text>
+          </Pressable>
+        </View>
       )}
       <Text style={styles.price}>
         {item.price
@@ -199,7 +224,16 @@ const styles = StyleSheet.create({
   badge: { color: colors.primary, fontWeight: "600", marginTop: 12 },
   title: { fontSize: 22, fontWeight: "800", marginTop: 4 },
   loc: { color: colors.muted },
-  tpLink: { color: colors.primary, fontWeight: "600", marginTop: 4, marginBottom: 8 },
+  planningBox: {
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  planningTitle: { fontWeight: "700", marginBottom: 6, color: colors.text },
+  tpLink: { color: colors.primary, fontWeight: "600", marginTop: 4 },
   price: { fontSize: 18, fontWeight: "700", marginVertical: 8 },
   body: { lineHeight: 22, marginBottom: 12 },
   meta: { gap: 4, marginBottom: 16 },
