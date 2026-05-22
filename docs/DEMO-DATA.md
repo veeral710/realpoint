@@ -2,6 +2,8 @@
 
 All seeded content is **illustrative** for Surat UX testing — not from SUDA, RERA, or live markets.
 
+**5-minute demo walkthrough:** [DEMO-SCRIPT.md](./DEMO-SCRIPT.md)
+
 ## Reset everything
 
 ```bash
