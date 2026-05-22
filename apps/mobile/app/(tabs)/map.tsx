@@ -56,6 +56,7 @@ export default function MapTabScreen() {
   const [showVillages, setShowVillages] = useState(false);
   const [showNotices, setShowNotices] = useState(true);
   const [showFp, setShowFp] = useState(params.showFp === "1");
+  const [showRasterSheets, setShowRasterSheets] = useState(false);
   const showListings = mapMode === "listings";
   const showPlanningLayers = mapMode === "planning";
   const [tpOpacity, setTpOpacity] = useState(0.45);
@@ -80,6 +81,7 @@ export default function MapTabScreen() {
         setShowVillages(p.showVillages);
         setShowNotices(p.showNotices);
         setShowFp(p.showFp);
+        setShowRasterSheets(p.showRasterSheets);
         setSatellite(p.satellite);
       }
       setPrefsLoaded(true);
@@ -95,6 +97,7 @@ export default function MapTabScreen() {
       showVillages,
       showNotices,
       showFp,
+      showRasterSheets,
       satellite,
     });
   }, [
@@ -105,6 +108,7 @@ export default function MapTabScreen() {
     showVillages,
     showNotices,
     showFp,
+    showRasterSheets,
     satellite,
   ]);
 
@@ -198,6 +202,7 @@ export default function MapTabScreen() {
         showListings={showListings}
         showNotices={showPlanningLayers && showNotices}
         showTpMarkers={showPlanningLayers && !showTp}
+        showRasterSheets={showPlanningLayers && showRasterSheets}
         tpOpacity={tpOpacity}
         overlayOpacity={overlayOpacity}
         mapType={satellite ? "hybrid" : "standard"}
@@ -311,6 +316,15 @@ export default function MapTabScreen() {
                 <View style={styles.row}>
                   <Text style={styles.label}>{layerLabels.tp}</Text>
                   <Switch value={showTp} onValueChange={setShowTp} />
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.label}>
+                    {isGu ? "નમૂના TP શીટ (MapLibre)" : "Sample TP sheets"}
+                  </Text>
+                  <Switch
+                    value={showRasterSheets}
+                    onValueChange={setShowRasterSheets}
+                  />
                 </View>
                 <View style={styles.row}>
                   <Text style={styles.label}>{layerLabels.dp}</Text>

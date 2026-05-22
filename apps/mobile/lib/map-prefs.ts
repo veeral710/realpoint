@@ -9,6 +9,7 @@ export type MapPrefs = {
   showVillages: boolean;
   showNotices: boolean;
   showFp: boolean;
+  showRasterSheets: boolean;
   satellite: boolean;
 };
 
@@ -19,6 +20,7 @@ const DEFAULTS: MapPrefs = {
   showVillages: false,
   showNotices: true,
   showFp: false,
+  showRasterSheets: false,
   satellite: false,
 };
 

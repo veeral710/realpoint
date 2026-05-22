@@ -33,6 +33,7 @@ export type SuratMapProps = {
   showListings?: boolean;
   showNotices?: boolean;
   showTpMarkers?: boolean;
+  showRasterSheets?: boolean;
   tpOpacity: number;
   overlayOpacity?: number;
   mapType: "standard" | "satellite" | "hybrid";

@@ -6,6 +6,7 @@ import {
   GeoJSONSource,
   Layer,
   Marker,
+  ImageSource,
   UserLocation,
   type CameraRef,
 } from "@maplibre/maplibre-react-native";
@@ -20,6 +21,10 @@ import {
   listingsToFeatureCollection,
   noticesToFeatureCollection,
 } from "@/lib/maps";
+import {
+  rasterCoordinatesForScheme,
+  schemesWithRaster,
+} from "@/lib/map-raster";
 import type { SuratMapProps } from "./SuratMapLegacy";
 
 function OverlayLayers({
@@ -82,6 +87,7 @@ export function SuratMapLibre({
   showListings = false,
   showNotices = false,
   showTpMarkers = true,
+  showRasterSheets = false,
   tpOpacity,
   overlayOpacity = 0.35,
   mapType,
@@ -204,6 +210,23 @@ export function SuratMapLibre({
           }}
         />
         <UserLocation accuracy />
+        {showRasterSheets &&
+          schemesWithRaster(schemes, selectedSchemeId).map((scheme) => (
+            <ImageSource
+              key={`raster-${scheme.id}`}
+              id={`raster-${scheme.id}`}
+              url={scheme.raster_overlay_url!}
+              coordinates={rasterCoordinatesForScheme(scheme)}
+            >
+              <Layer
+                type="raster"
+                id={`raster-layer-${scheme.id}`}
+                paint={{
+                  "raster-opacity": scheme.raster_opacity ?? 0.5,
+                }}
+              />
+            </ImageSource>
+          ))}
         <OverlayLayers
           sourceId="tp-overlays"
           data={tpGeo}

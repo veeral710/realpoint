@@ -12,6 +12,7 @@ import {
   LISTING_INTENTS,
   PROPERTY_CLASSES,
   PROPERTY_CLASS_LABELS,
+  PROPERTY_CLASS_LABELS_GU,
   LISTING_INTENT_LABELS_GU,
   type Listing,
 } from "@realpoint/shared";
@@ -80,7 +81,7 @@ export default function ListingsScreen() {
           { value: null, label: "All types" },
           ...PROPERTY_CLASSES.map((c) => ({
             value: c,
-            label: PROPERTY_CLASS_LABELS[c],
+            label: isGu ? PROPERTY_CLASS_LABELS_GU[c] : PROPERTY_CLASS_LABELS[c],
           })),
         ]}
         selected={propertyClass}

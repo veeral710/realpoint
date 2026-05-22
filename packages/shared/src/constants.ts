@@ -63,6 +63,20 @@ export const PROPERTY_CLASS_LABELS: Record<
   mixed: "Mixed Use",
 };
 
+export const PROPERTY_CLASS_LABELS_GU: Record<
+  (typeof PROPERTY_CLASSES)[number],
+  string
+> = {
+  agricultural: "કૃષિ જમીન",
+  non_agricultural: "બિન-કૃષિ",
+  plot: "પ્લોટ",
+  house: "મકાન",
+  apartment: "એપાર્ટમેન્ટ",
+  commercial: "વ્યાપારી",
+  industrial: "ઔદ્યોગિક",
+  mixed: "મિશ્ર",
+};
+
 export const AREA_UNITS = [
   "sqft",
   "sqm",

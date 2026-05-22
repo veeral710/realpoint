@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import {
   View,
   Text,
@@ -60,9 +61,14 @@ export default function NewsScreen() {
 
   useEffect(() => {
     trackEvent("screen_view", "news");
-    getLocale().then(setLocale);
     load();
   }, [load]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getLocale().then(setLocale);
+    }, [])
+  );
 
   useEffect(() => {
     if (areaInitialized) return;

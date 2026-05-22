@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ReportStatusButton } from "@/components/ReportStatusButton";
 
 export default async function AdminReportsPage() {
   const supabase = await createClient();
@@ -24,6 +25,7 @@ export default async function AdminReportsPage() {
             <th>Target</th>
             <th>Reason</th>
             <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -49,6 +51,9 @@ export default async function AdminReportsPage() {
                 <td>{target}</td>
                 <td>{r.reason}</td>
                 <td>{r.status}</td>
+                <td>
+                  <ReportStatusButton reportId={r.id} status={r.status} />
+                </td>
               </tr>
             );
           })}

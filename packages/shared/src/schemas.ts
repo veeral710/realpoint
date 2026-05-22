@@ -178,6 +178,8 @@ export const tpSchemeSchema = z.object({
   center_lat: z.number(),
   center_lng: z.number(),
   overlay_color: z.string().nullable(),
+  raster_overlay_url: z.string().url().nullable().optional(),
+  raster_opacity: z.number().nullable().optional(),
   sort_order: z.number(),
   is_published: z.boolean(),
 });
@@ -189,6 +191,8 @@ const geoJsonPolygonSchema = z.object({
 
 export const tpSchemeMapSchema = tpSchemeSchema.extend({
   boundary_geojson: geoJsonPolygonSchema.nullable().optional(),
+  raster_overlay_url: z.string().nullable().optional(),
+  raster_opacity: z.number().nullable().optional(),
 });
 
 export const mapOverlaySchema = z.object({
