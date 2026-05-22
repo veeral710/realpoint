@@ -5,6 +5,7 @@ export default function HomePage() {
     <>
       <nav className="nav">
         <span className="brand">RealPoint</span>
+        <Link href="/explore">Explore</Link>
         <Link href="/admin">Admin</Link>
         <Link href="/login">Login</Link>
       </nav>

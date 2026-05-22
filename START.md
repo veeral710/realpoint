@@ -10,6 +10,27 @@ pnpm demo:reset
 
 See [docs/DEMO-DATA.md](docs/DEMO-DATA.md) for demo logins (admin, buyer, agent).
 
+**5-minute presenter script:** [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md)
+
+## Test consumer app on PC (Android emulator)
+
+1. Start an emulator in Android Studio (Device Manager).
+2. Set in `apps/mobile/.env`:
+
+```env
+EXPO_PUBLIC_SUPABASE_LAN_URL=http://10.0.2.2:54321
+```
+
+3. One command (Supabase + Metro):
+
+```bash
+pnpm demo:android
+```
+
+4. Press **`a`** in Metro to open on the emulator, or open the dev app manually.
+
+Read-only news/listings in the browser (no phone): http://localhost:3000/explore (after `pnpm dev:web`).
+
 ## First time (or after clone)
 
 ```bash

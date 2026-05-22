@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { LoadDemoPackButton } from "@/components/LoadDemoPackButton";
+import { isLocalSupabase } from "@/lib/admin";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -29,6 +31,10 @@ export default async function AdminDashboard() {
         <a href="https://github.com/veeral710/realpoint/blob/main/docs/DEMO-DATA.md">
           docs/DEMO-DATA.md
         </a>
+        . Presenter walkthrough:{" "}
+        <a href="https://github.com/veeral710/realpoint/blob/main/docs/DEMO-SCRIPT.md">
+          docs/DEMO-SCRIPT.md
+        </a>
         .
       </p>
       <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
@@ -48,6 +54,7 @@ export default async function AdminDashboard() {
           <Link href="/admin/tp-schemes">Manage schemes →</Link>
         </div>
       </div>
+      {isLocalSupabase() ? <LoadDemoPackButton /> : null}
     </div>
   );
 }
