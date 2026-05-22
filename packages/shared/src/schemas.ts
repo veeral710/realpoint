@@ -23,6 +23,8 @@ export const profileSchema = z.object({
   full_name: z.string().nullable(),
   role: userRoleSchema,
   disclaimer_accepted_at: z.string().nullable(),
+  onboarding_completed_at: z.string().nullable().optional(),
+  area_interests: z.array(z.string()).nullable().optional(),
   is_admin: z.boolean(),
   created_at: z.string(),
   updated_at: z.string(),

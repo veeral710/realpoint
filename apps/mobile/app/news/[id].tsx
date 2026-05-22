@@ -17,6 +17,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import { getLocale, pickLocalized, type Locale } from "@/lib/i18n";
+import { ReportMenu } from "@/components/ReportMenu";
 import { colors } from "@/constants/theme";
 
 export default function NewsDetailScreen() {
@@ -114,6 +115,7 @@ export default function NewsDetailScreen() {
           <Text style={styles.mapBtnText}>View on planning map</Text>
         </Pressable>
       )}
+      <ReportMenu kind="news" targetId={id!} />
       <View style={styles.actions}>
         <Pressable style={styles.btn} onPress={toggleSave}>
           <Text style={styles.btnText}>{saved ? "Saved ✓" : "Save"}</Text>

@@ -120,3 +120,45 @@ export const DEMO_BANNER_TEXT =
   "Sample Surat data for demo — not official government or market records.";
 
 export const DEMO_AREA_FILTERS = ["Vesu", "Adajan", "Varachha"] as const;
+
+/** Onboarding + saved locality alerts */
+export const ONBOARDING_AREAS = [
+  "Vesu",
+  "Adajan",
+  "Varachha",
+  "Palsana",
+  "Katargam",
+] as const;
+
+export const TAB_LABELS_GU = {
+  news: "સમાચાર",
+  listings: "મિલકત",
+  map: "નકશો",
+  account: "ખાતું",
+} as const;
+
+export const LISTING_INTENT_LABELS_GU: Record<
+  (typeof LISTING_INTENTS)[number],
+  string
+> = {
+  buy: "ખરીદી",
+  sell: "વેચાણ",
+  rent: "ભાડું",
+};
+
+export const MAP_LAYER_LABELS_GU: Record<
+  (typeof MAP_LAYER_TYPES)[number],
+  string
+> = {
+  tp: "ટાઉન પ્લાન (TP)",
+  dp: "ડેવલપમેન્ટ પ્લાન (DP)",
+  fp: "ફાઇનલ પ્લોટ (FP)",
+  village: "ગામ",
+};
+
+export const REPORT_REASONS = [
+  "Spam or misleading",
+  "Wrong information",
+  "Suspicious contact",
+  "Other",
+] as const;

@@ -1,5 +1,9 @@
-import { Tabs } from "expo-router";
+import { Tabs, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { Text } from "react-native";
+import { TAB_LABELS_GU } from "@realpoint/shared";
+import { useAreaNewsBadge } from "@/hooks/useAreaNewsBadge";
+import { useLocale } from "@/hooks/useLocale";
 import { colors } from "@/constants/theme";
 
 function TabIcon({ label }: { label: string }) {
@@ -7,6 +11,15 @@ function TabIcon({ label }: { label: string }) {
 }
 
 export default function TabsLayout() {
+  const { isGu, refresh } = useLocale();
+  const newsBadge = useAreaNewsBadge();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
   return (
     <Tabs
       screenOptions={{
@@ -19,28 +32,29 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="news"
         options={{
-          title: "News",
+          title: isGu ? TAB_LABELS_GU.news : "News",
+          tabBarBadge: newsBadge,
           tabBarIcon: () => <TabIcon label="📰" />,
         }}
       />
       <Tabs.Screen
         name="listings"
         options={{
-          title: "Properties",
+          title: isGu ? TAB_LABELS_GU.listings : "Properties",
           tabBarIcon: () => <TabIcon label="🏠" />,
         }}
       />
       <Tabs.Screen
         name="map"
         options={{
-          title: "Map",
+          title: isGu ? TAB_LABELS_GU.map : "Map",
           tabBarIcon: () => <TabIcon label="🗺️" />,
         }}
       />
       <Tabs.Screen
         name="account"
         options={{
-          title: "Account",
+          title: isGu ? TAB_LABELS_GU.account : "Account",
           tabBarIcon: () => <TabIcon label="👤" />,
         }}
       />

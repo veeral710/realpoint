@@ -12,10 +12,12 @@ import { useRouter } from "expo-router";
 import {
   NEWS_CATEGORIES,
   NEWS_CATEGORY_LABELS,
-  DEMO_AREA_FILTERS,
+  ONBOARDING_AREAS,
   type NewsItem,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
+import { getAreaInterests } from "@/lib/area-interests";
+import { trackEvent } from "@/lib/analytics";
 import { getLocale, pickLocalized, type Locale } from "@/lib/i18n";
 import { DemoBanner } from "@/components/DemoBanner";
 import { FilterChipRow } from "@/components/FilterChipRow";
@@ -29,6 +31,7 @@ export default function NewsScreen() {
   const [category, setCategory] = useState<string | null>(null);
   const [area, setArea] = useState<string | null>(null);
   const [locale, setLocale] = useState<Locale>("en");
+  const [areaInitialized, setAreaInitialized] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -56,9 +59,19 @@ export default function NewsScreen() {
   }, [category, area, query]);
 
   useEffect(() => {
+    trackEvent("screen_view", "news");
     getLocale().then(setLocale);
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (areaInitialized) return;
+    (async () => {
+      const areas = await getAreaInterests();
+      if (areas[0]) setArea(areas[0]);
+      setAreaInitialized(true);
+    })();
+  }, [areaInitialized]);
 
   const header = (
     <View style={styles.header}>
@@ -85,7 +98,7 @@ export default function NewsScreen() {
       <FilterChipRow
         chips={[
           { value: null, label: "All areas" },
-          ...DEMO_AREA_FILTERS.map((a) => ({ value: a, label: a })),
+          ...ONBOARDING_AREAS.map((a) => ({ value: a, label: a })),
         ]}
         selected={area}
         onSelect={setArea}

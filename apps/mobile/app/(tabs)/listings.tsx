@@ -12,9 +12,12 @@ import {
   LISTING_INTENTS,
   PROPERTY_CLASSES,
   PROPERTY_CLASS_LABELS,
+  LISTING_INTENT_LABELS_GU,
   type Listing,
 } from "@realpoint/shared";
 import { supabase } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics";
+import { useLocale } from "@/hooks/useLocale";
 import { DemoBanner } from "@/components/DemoBanner";
 import { FilterChipRow } from "@/components/FilterChipRow";
 import { colors } from "@/constants/theme";
@@ -23,6 +26,7 @@ type ListingRow = Listing & { localities?: { area_name: string } };
 
 export default function ListingsScreen() {
   const router = useRouter();
+  const { isGu } = useLocale();
   const [items, setItems] = useState<ListingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [intent, setIntent] = useState<string | null>(null);
@@ -45,6 +49,7 @@ export default function ListingsScreen() {
   }, [intent, propertyClass]);
 
   useEffect(() => {
+    trackEvent("screen_view", "listings");
     load();
   }, [load]);
 
@@ -62,7 +67,9 @@ export default function ListingsScreen() {
           { value: null, label: "All intents" },
           ...LISTING_INTENTS.map((i) => ({
             value: i,
-            label: i.charAt(0).toUpperCase() + i.slice(1),
+            label: isGu
+              ? LISTING_INTENT_LABELS_GU[i]
+              : i.charAt(0).toUpperCase() + i.slice(1),
           })),
         ]}
         selected={intent}

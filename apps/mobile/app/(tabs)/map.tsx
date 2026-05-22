@@ -12,6 +12,7 @@ import {
   LISTING_INTENTS,
   MAP_DISCLAIMER,
   MAP_LAYER_LABELS,
+  MAP_LAYER_LABELS_GU,
   NEWS_CATEGORY_LABELS,
   NEWS_CATEGORY_MAP_COLORS,
   PROPERTY_CLASS_LABELS,
@@ -22,10 +23,14 @@ import { SuratMap } from "@/components/SuratMap";
 import { DemoBanner } from "@/components/DemoBanner";
 import { useMapLayers } from "@/hooks/useMapLayers";
 import { loadMapPrefs, saveMapPrefs } from "@/lib/map-prefs";
+import { trackEvent } from "@/lib/analytics";
+import { useLocale } from "@/hooks/useLocale";
 import { colors } from "@/constants/theme";
 
 export default function MapTabScreen() {
   const router = useRouter();
+  const { isGu } = useLocale();
+  const layerLabels = isGu ? MAP_LAYER_LABELS_GU : MAP_LAYER_LABELS;
   const params = useLocalSearchParams<{
     scheme?: string;
     listing?: string;
@@ -33,6 +38,10 @@ export default function MapTabScreen() {
     showFp?: string;
   }>();
   const [listingIntent, setListingIntent] = useState<string | null>(null);
+
+  useEffect(() => {
+    trackEvent("map_open", "map");
+  }, []);
   const { schemes, dpOverlays, fpOverlays, villages, listings, notices, loading, error } =
     useMapLayers(listingIntent);
   const [schemeFpOverlays, setSchemeFpOverlays] = useState<MapOverlay[]>([]);
@@ -284,15 +293,15 @@ export default function MapTabScreen() {
                 <Text style={styles.section}>Legend (illustrative)</Text>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: "#2e7d52" }]} />
-                  <Text style={styles.legendText}>{MAP_LAYER_LABELS.tp}</Text>
+                  <Text style={styles.legendText}>{layerLabels.tp}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: "#1565c0" }]} />
-                  <Text style={styles.legendText}>{MAP_LAYER_LABELS.dp}</Text>
+                  <Text style={styles.legendText}>{layerLabels.dp}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: "#6d4c41" }]} />
-                  <Text style={styles.legendText}>{MAP_LAYER_LABELS.village}</Text>
+                  <Text style={styles.legendText}>{layerLabels.village}</Text>
                 </View>
                 <View style={styles.legendRow}>
                   <View style={[styles.legendDot, { backgroundColor: NEWS_CATEGORY_MAP_COLORS.suda }]} />
@@ -300,15 +309,15 @@ export default function MapTabScreen() {
                 </View>
                 <Text style={styles.section}>Planning layers</Text>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{MAP_LAYER_LABELS.tp}</Text>
+                  <Text style={styles.label}>{layerLabels.tp}</Text>
                   <Switch value={showTp} onValueChange={setShowTp} />
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{MAP_LAYER_LABELS.dp}</Text>
+                  <Text style={styles.label}>{layerLabels.dp}</Text>
                   <Switch value={showDp} onValueChange={setShowDp} />
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{MAP_LAYER_LABELS.village}</Text>
+                  <Text style={styles.label}>{layerLabels.village}</Text>
                   <Switch
                     value={showVillages}
                     onValueChange={setShowVillages}

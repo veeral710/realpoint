@@ -18,6 +18,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { openListingWhatsApp } from "@/lib/integrations/mock-whatsapp";
 import { useAuth } from "@/lib/auth";
+import { ReportMenu } from "@/components/ReportMenu";
 import { colors } from "@/constants/theme";
 
 type ListingDetail = Listing & {
@@ -213,6 +214,7 @@ export default function ListingDetailScreen() {
       <Pressable style={styles.btn} onPress={sendInquiry}>
         <Text style={styles.btnText}>Send inquiry</Text>
       </Pressable>
+      <ReportMenu kind="listing" targetId={id!} />
     </ScrollView>
   );
 }

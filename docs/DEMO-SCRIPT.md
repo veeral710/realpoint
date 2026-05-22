@@ -58,7 +58,19 @@ Say aloud: *“Everything you see is sample Surat data for product demo — not 
 
 ---
 
-## 4 — Close (30 sec)
+## 4 — M4 polish (optional, 1 min)
+
+| Step | Screen | Show |
+|------|--------|------|
+| 4.1 | Onboarding (fresh install) or **Account → My areas** | Pick Vesu + Adajan |
+| 4.2 | **News** tab | Badge on tab; filter pre-set to your area |
+| 4.3 | Listing or news detail → **Report** | Admin → **Reports** queue |
+| 4.4 | Account → **Gujarati content** | Tab titles switch to Gujarati |
+| 4.5 | Admin → **Analytics** | Screen view counts after browsing app |
+
+---
+
+## 5 — Close (30 sec)
 
 - **MapLibre / push:** need EAS dev build, not Expo Go.
 - **Next real step:** one data partnership OR one production integration — not ten stubs at once.

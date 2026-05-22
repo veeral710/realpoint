@@ -10,7 +10,9 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { getLocale, setLocale, type Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
+import { useLocale } from "@/hooks/useLocale";
+import { trackEvent } from "@/lib/analytics";
 import { enableDemoPushAlerts } from "@/lib/integrations/mock-push";
 import { USER_ROLES } from "@realpoint/shared";
 import { DemoBanner } from "@/components/DemoBanner";
@@ -19,20 +21,17 @@ import { colors } from "@/constants/theme";
 export default function AccountScreen() {
   const router = useRouter();
   const { user, profile, refreshProfile } = useAuth();
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const { isGu, setLocale: setLocalePref } = useLocale();
   const [guEnabled, setGuEnabled] = useState(false);
 
   useEffect(() => {
-    getLocale().then((l) => {
-      setLocaleState(l);
-      setGuEnabled(l === "gu");
-    });
-  }, []);
+    trackEvent("screen_view", "account");
+    setGuEnabled(isGu);
+  }, [isGu]);
 
   async function toggleGujarati(v: boolean) {
     const l: Locale = v ? "gu" : "en";
-    await setLocale(l);
-    setLocaleState(l);
+    await setLocalePref(l);
     setGuEnabled(v);
   }
 
@@ -87,6 +86,9 @@ export default function AccountScreen() {
             <Text>Gujarati content</Text>
             <Switch value={guEnabled} onValueChange={toggleGujarati} />
           </View>
+          <Pressable style={styles.link} onPress={() => router.push("/areas")}>
+            <Text style={styles.linkText}>My areas of interest →</Text>
+          </Pressable>
           <Pressable style={styles.link} onPress={() => router.push("/saved")}>
             <Text style={styles.linkText}>Saved items →</Text>
           </Pressable>

@@ -9,6 +9,10 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import {
+  countRecentNewsInAreas,
+  getAreaInterests,
+} from "@/lib/area-interests";
 import { colors } from "@/constants/theme";
 
 type SavedRow = {
@@ -28,8 +32,11 @@ function pickTitle(
 
 export default function SavedScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [items, setItems] = useState<SavedRow[]>([]);
+  const [areaCounts, setAreaCounts] = useState<{ area: string; count: number }[]>(
+    []
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -41,6 +48,22 @@ export default function SavedScreen() {
       .then(({ data }) => setItems((data ?? []) as SavedRow[]));
   }, [user?.id]);
 
+  useEffect(() => {
+    (async () => {
+      const fromProfile = profile?.area_interests?.filter(Boolean) ?? [];
+      const areas = fromProfile.length
+        ? fromProfile
+        : await getAreaInterests();
+      const rows = await Promise.all(
+        areas.map(async (area) => ({
+          area,
+          count: await countRecentNewsInAreas([area], 14),
+        }))
+      );
+      setAreaCounts(rows.filter((r) => r.count > 0));
+    })();
+  }, [profile?.area_interests?.join(",")]);
+
   if (!user) {
     return (
       <View style={styles.centered}>
@@ -49,11 +72,31 @@ export default function SavedScreen() {
     );
   }
 
+  const listHeader =
+    areaCounts.length > 0 ? (
+      <View style={styles.alertBox}>
+        <Text style={styles.alertTitle}>New in your areas (demo)</Text>
+        {areaCounts.map(({ area, count }) => (
+          <Text key={area} style={styles.alertLine}>
+            {area}: {count} notice{count === 1 ? "" : "s"} in last 14 days
+          </Text>
+        ))}
+        <Pressable onPress={() => router.push("/areas")}>
+          <Text style={styles.alertLink}>Edit areas →</Text>
+        </Pressable>
+      </View>
+    ) : (
+      <Pressable style={styles.alertBox} onPress={() => router.push("/areas")}>
+        <Text style={styles.alertLink}>Set areas of interest for alerts →</Text>
+      </Pressable>
+    );
+
   return (
     <FlatList
       data={items}
       keyExtractor={(i) => i.id}
       contentContainerStyle={{ padding: 16 }}
+      ListHeaderComponent={listHeader}
       renderItem={({ item }) => {
         const isNews = !!item.news_item_id;
         const title =
@@ -79,6 +122,17 @@ export default function SavedScreen() {
 
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  alertBox: {
+    padding: 14,
+    backgroundColor: "#e8f5e9",
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#c8e6c9",
+  },
+  alertTitle: { fontWeight: "700", marginBottom: 6, color: colors.text },
+  alertLine: { fontSize: 13, color: colors.muted, marginBottom: 2 },
+  alertLink: { color: colors.primary, fontWeight: "600", marginTop: 6 },
   card: {
     padding: 14,
     backgroundColor: colors.surface,

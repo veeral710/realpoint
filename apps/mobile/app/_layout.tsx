@@ -35,6 +35,7 @@ export default function RootLayout() {
           options={{ title: "Document request" }}
         />
         <Stack.Screen name="profile" options={{ title: "Profile" }} />
+        <Stack.Screen name="areas" options={{ title: "My areas" }} />
       </Stack>
     </AuthProvider>
   );
